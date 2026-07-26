@@ -117,6 +117,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         role,
       });
       if (profileErr) return { error: profileErr.message };
+
+      try {
+        await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/new-signup-notify`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({ email, username, firstName, lastName, role, programme, yearId }),
+        });
+      } catch {
+        // Notification is best-effort; never block signup on it.
+      }
     }
     return { error: null };
   };
