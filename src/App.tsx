@@ -7,6 +7,7 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Years from "./pages/Years";
 import Settings from "./pages/Settings";
+import AvatarStudio from "./pages/AvatarStudio";
 import Programmes from "./pages/Programmes";
 import Checkpoint from "./pages/Checkpoint";
 import Igcse from "./pages/Igcse";
@@ -87,6 +88,7 @@ function AppRoutes() {
           <Route path="/checkpoint" element={<ProtectedRoute><StudentRoute><Checkpoint /></StudentRoute></ProtectedRoute>} />
           <Route path="/igcse" element={<ProtectedRoute><StudentRoute><Igcse /></StudentRoute></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+          <Route path="/avatar" element={<ProtectedRoute><AvatarStudio /></ProtectedRoute>} />
           <Route path="/leaderboard" element={<ProtectedRoute><StudentRoute><Leaderboard /></StudentRoute></ProtectedRoute>} />
           <Route path="/friends" element={<ProtectedRoute><StudentRoute><Friends /></StudentRoute></ProtectedRoute>} />
           <Route path="/pathway" element={<ProtectedRoute><StudentRoute><Pathway /></StudentRoute></ProtectedRoute>} />

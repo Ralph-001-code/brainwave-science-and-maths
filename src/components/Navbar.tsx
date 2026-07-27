@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { getRankForXp } from "../lib/quizData";
-import { LogOut, LayoutDashboard, GraduationCap, Calendar, Pencil, Settings, Layers, Award, BookOpen, Menu, X, FileText, BookOpenCheck, Trophy, Users } from "lucide-react";
+import { LogOut, LayoutDashboard, GraduationCap, Calendar, Pencil, Settings, Layers, Award, BookOpen, Menu, X, FileText, BookOpenCheck, Trophy, Users, Sparkles } from "lucide-react";
+import AvatarSvg, { parseAvatarConfig, DEFAULT_AVATAR } from "./AvatarSvg";
 
 export function displayName(p: { first_name?: string; last_name?: string; username?: string } | null): string {
   if (!p) return "";
@@ -49,11 +50,13 @@ export default function Navbar() {
     { to: "/daily", label: "Daily Quiz", icon: Calendar },
     { to: "/practice", label: "Practice", icon: Pencil },
     { to: "/settings", label: "Settings", icon: Settings },
+    { to: "/avatar", label: "Avatar Studio", icon: Sparkles },
   ];
 
   const teacherLinks = [
     { to: "/teacher", label: "Teacher Hub", icon: BookOpenCheck },
     { to: "/settings", label: "Settings", icon: Settings },
+    { to: "/avatar", label: "Avatar Studio", icon: Sparkles },
   ];
 
   // Guardians get full student access plus a Teacher Hub link
@@ -70,6 +73,7 @@ export default function Navbar() {
     { to: "/daily", label: "Daily Quiz", icon: Calendar },
     { to: "/practice", label: "Practice", icon: Pencil },
     { to: "/settings", label: "Settings", icon: Settings },
+    { to: "/avatar", label: "Avatar Studio", icon: Sparkles },
   ];
 
   const links = isAdmin ? studentLinks : isTeacher ? teacherLinks : isGuardian ? guardianLinks : studentLinks;
@@ -163,9 +167,14 @@ export default function Navbar() {
                   )}
                 </>
               )}
-              <span className="nav-links-desktop" style={{ fontWeight: 600, fontSize: 14, color: "var(--text)" }}>
-                {profile ? displayName(profile) : ""}
-              </span>
+              <Link to="/avatar" className="nav-avatar-btn" title="Edit your avatar" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", borderRadius: 999, padding: 2, transition: "transform 0.18s" }}>
+                <div style={{ position: "relative", width: 38, height: 38, borderRadius: "50%", overflow: "hidden", border: "2px solid var(--primary)", background: "var(--bg-soft)", flexShrink: 0 }}>
+                  <AvatarSvg config={profile?.avatar_config ? parseAvatarConfig(profile.avatar_config) : DEFAULT_AVATAR} size={38} />
+                </div>
+                <span className="nav-links-desktop" style={{ fontWeight: 600, fontSize: 14, color: "var(--text)" }}>
+                  {profile ? displayName(profile) : ""}
+                </span>
+              </Link>
               <button
                 onClick={handleSignOut}
                 aria-label="Sign out"

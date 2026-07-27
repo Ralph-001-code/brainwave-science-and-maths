@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../lib/AuthContext";
 import { YEARS, getYear, type YearId } from "../lib/quizData";
 import { CHANNEL } from "../lib/config";
-import { GraduationCap, Bell, Youtube, CheckCircle2, AlertCircle, Send, Star, User, Timer, Pencil, Trash2, X, BookOpen, Shield, School as SchoolIcon, Search } from "lucide-react";
+import { GraduationCap, Bell, Youtube, CheckCircle2, AlertCircle, Send, Star, User, Timer, Pencil, Trash2, X, BookOpen, Shield, School as SchoolIcon, Search, Sparkles } from "lucide-react";
 import type { Role } from "../lib/supabase";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { displayName } from "../components/Navbar";
 import { supabase } from "../lib/supabase";
 
@@ -303,6 +303,19 @@ export default function Settings() {
       <div className="fade-up" style={{ marginBottom: 28 }}>
         <h1 style={{ fontSize: "clamp(26px, 4vw, 36px)" }}>Settings</h1>
         <p className="text-muted" style={{ fontSize: 16 }}>Manage your name, year group, email preferences and account.</p>
+      </div>
+
+      {/* Avatar */}
+      <div className="card fade-up" style={{ marginBottom: 20, background: "linear-gradient(135deg, rgba(168,85,247,0.06), rgba(245,200,66,0.04))", border: "1px solid rgba(168,85,247,0.25)" }}>
+        <h3 style={{ fontSize: 18, marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}>
+          <Sparkles size={20} style={{ color: "var(--primary-light)" }} /> Your avatar
+        </h3>
+        <p className="text-muted" style={{ fontSize: 14, marginBottom: 16 }}>
+          Create a character that represents you — pick a body, hair, costume and pose. It shows next to your name everywhere in Brainwave.
+        </p>
+        <Link to="/avatar" className="btn btn-primary" style={{ display: "inline-flex", alignItems: "center", gap: 8, textDecoration: "none", padding: "12px 22px", borderRadius: 10, fontWeight: 700, fontSize: 14 }}>
+          <Sparkles size={16} /> {profile?.avatar_config ? "Edit your avatar" : "Create your avatar"}
+        </Link>
       </div>
 
       {/* Name */}

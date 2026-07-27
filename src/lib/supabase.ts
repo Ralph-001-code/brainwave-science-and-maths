@@ -39,6 +39,7 @@ export type Profile = {
   first_name: string;
   last_name: string;
   avatar_url: string | null;
+  avatar_config: Record<string, unknown> | null;
   year_id: YearId;
   xp: number;
   streak: number;
