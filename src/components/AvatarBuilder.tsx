@@ -2,14 +2,19 @@ import { useState, useEffect } from "react";
 import AvatarSvg, {
   DEFAULT_AVATAR,
   parseAvatarConfig,
+  sanitizeAvatar,
   SKIN_TONES,
   HAIR_COLORS,
   COSTUME_COLORS,
   EYE_COLORS,
   HAIR_STYLES,
   COSTUME_PATTERNS,
+  OUTFITS,
   POSES,
   ACCESSORIES,
+  EXPRESSIONS,
+  FACIAL_HAIR,
+  BACKGROUNDS,
   type AvatarConfig,
 } from "./AvatarSvg";
 import { Check, Shuffle, RotateCcw } from "lucide-react";
@@ -23,34 +28,35 @@ type Props = {
 const TABS = [
   { id: "body", label: "Body" },
   { id: "hair", label: "Hair" },
-  { id: "costume", label: "Costume" },
+  { id: "face", label: "Face" },
+  { id: "costume", label: "Outfit" },
   { id: "pose", label: "Pose" },
-  { id: "accessory", label: "Extras" },
+  { id: "extras", label: "Extras" },
+  { id: "scene", label: "Scene" },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
 
 export default function AvatarBuilder({ initialConfig, onSave, saving }: Props) {
-  const [config, setConfig] = useState<AvatarConfig>(initialConfig ?? { ...DEFAULT_AVATAR });
+  const [config, setConfig] = useState<AvatarConfig>(initialConfig ? sanitizeAvatar(initialConfig) : { ...DEFAULT_AVATAR });
   const [tab, setTab] = useState<TabId>("body");
   const [saveMsg, setSaveMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
 
   useEffect(() => {
-    if (initialConfig) setConfig(initialConfig);
+    if (initialConfig) setConfig(sanitizeAvatar(initialConfig));
   }, [initialConfig]);
 
   const update = (patch: Partial<AvatarConfig>) => setConfig((c) => ({ ...c, ...patch }));
 
   const handleSave = async () => {
     setSaveMsg(null);
-    const { error } = await onSave(config);
+    const clean = sanitizeAvatar(config);
+    const { error } = await onSave(clean);
     setSaveMsg(error ? { type: "err", text: error } : { type: "ok", text: "Your avatar has been saved!" });
   };
 
   const shuffle = () => {
-    const hairstylesForType = HAIR_STYLES.filter(
-      (h) => h.bodyType === "both" || h.bodyType === config.bodyType,
-    );
+    const hairstylesForType = HAIR_STYLES.filter((h) => h.bodyType === "both" || h.bodyType === config.bodyType);
     setConfig({
       bodyType: Math.random() > 0.5 ? "male" : "female",
       skinTone: SKIN_TONES[Math.floor(Math.random() * SKIN_TONES.length)],
@@ -58,15 +64,22 @@ export default function AvatarBuilder({ initialConfig, onSave, saving }: Props) 
       hairColor: HAIR_COLORS[Math.floor(Math.random() * HAIR_COLORS.length)],
       costume: COSTUME_COLORS[Math.floor(Math.random() * COSTUME_COLORS.length)],
       costumePattern: COSTUME_PATTERNS[Math.floor(Math.random() * COSTUME_PATTERNS.length)].id,
+      outfit: OUTFITS[Math.floor(Math.random() * OUTFITS.length)].id,
       pose: POSES[Math.floor(Math.random() * POSES.length)].id,
       accessory: ACCESSORIES[Math.floor(Math.random() * ACCESSORIES.length)].id,
       eyeColor: EYE_COLORS[Math.floor(Math.random() * EYE_COLORS.length)],
+      expression: EXPRESSIONS[Math.floor(Math.random() * EXPRESSIONS.length)].id,
+      facialHair: FACIAL_HAIR[Math.floor(Math.random() * FACIAL_HAIR.length)].id,
+      background: BACKGROUNDS[Math.floor(Math.random() * BACKGROUNDS.length)].id,
     });
   };
 
   const reset = () => setConfig({ ...DEFAULT_AVATAR });
 
   const availableHair = HAIR_STYLES.filter((h) => h.bodyType === "both" || h.bodyType === config.bodyType);
+
+  const femaleHair = ["long", "ponytail", "braid", "bun", "wavy"];
+  const maleHair = ["buzz", "spiky"];
 
   return (
     <div>
@@ -83,7 +96,7 @@ export default function AvatarBuilder({ initialConfig, onSave, saving }: Props) 
           marginBottom: 20,
         }}
       >
-        <div style={{ position: "relative", transition: "transform 0.3s ease" }}>
+        <div style={{ position: "relative", transition: "transform 0.3s ease" }} className="pop">
           <AvatarSvg config={config} size={200} />
         </div>
         <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
@@ -124,40 +137,36 @@ export default function AvatarBuilder({ initialConfig, onSave, saving }: Props) 
       {/* Tab content */}
       <div style={{ minHeight: 120 }}>
         {tab === "body" && (
-          <Section title="Body type">
-            <OptionRow>
-              <ChoiceButton
-                label="Male"
-                selected={config.bodyType === "male"}
-                onClick={() => update({ bodyType: "male", hairStyle: config.hairStyle === "long" || config.hairStyle === "ponytail" || config.hairStyle === "bun" ? "short" : config.hairStyle })}
-              />
-              <ChoiceButton
-                label="Female"
-                selected={config.bodyType === "female"}
-                onClick={() => update({ bodyType: "female", hairStyle: config.hairStyle === "buzz" || config.hairStyle === "spiky" ? "long" : config.hairStyle })}
-              />
-            </OptionRow>
-          </Section>
-        )}
-
-        {tab === "body" && (
-          <Section title="Skin tone">
-            <ColorRow>
-              {SKIN_TONES.map((c) => (
-                <Swatch key={c} color={c} selected={config.skinTone === c} onClick={() => update({ skinTone: c })} />
-              ))}
-            </ColorRow>
-          </Section>
-        )}
-
-        {tab === "body" && (
-          <Section title="Eye color">
-            <ColorRow>
-              {EYE_COLORS.map((c) => (
-                <Swatch key={c} color={c} selected={config.eyeColor === c} onClick={() => update({ eyeColor: c })} />
-              ))}
-            </ColorRow>
-          </Section>
+          <>
+            <Section title="Body type">
+              <OptionRow>
+                <ChoiceButton
+                  label="Male"
+                  selected={config.bodyType === "male"}
+                  onClick={() => update({ bodyType: "male", hairStyle: femaleHair.includes(config.hairStyle) ? "short" : config.hairStyle, facialHair: config.facialHair })}
+                />
+                <ChoiceButton
+                  label="Female"
+                  selected={config.bodyType === "female"}
+                  onClick={() => update({ bodyType: "female", hairStyle: maleHair.includes(config.hairStyle) ? "long" : config.hairStyle, facialHair: config.facialHair === "beard" ? "none" : config.facialHair })}
+                />
+              </OptionRow>
+            </Section>
+            <Section title="Skin tone">
+              <ColorRow>
+                {SKIN_TONES.map((c) => (
+                  <Swatch key={c} color={c} selected={config.skinTone === c} onClick={() => update({ skinTone: c })} />
+                ))}
+              </ColorRow>
+            </Section>
+            <Section title="Eye color">
+              <ColorRow>
+                {EYE_COLORS.map((c) => (
+                  <Swatch key={c} color={c} selected={config.eyeColor === c} onClick={() => update({ eyeColor: c })} />
+                ))}
+              </ColorRow>
+            </Section>
+          </>
         )}
 
         {tab === "hair" && (
@@ -179,9 +188,35 @@ export default function AvatarBuilder({ initialConfig, onSave, saving }: Props) 
           </>
         )}
 
+        {tab === "face" && (
+          <>
+            <Section title="Expression">
+              <OptionRow>
+                {EXPRESSIONS.map((e) => (
+                  <ChoiceButton key={e.id} label={`${e.emoji} ${e.label}`} selected={config.expression === e.id} onClick={() => update({ expression: e.id })} />
+                ))}
+              </OptionRow>
+            </Section>
+            <Section title="Facial hair">
+              <OptionRow>
+                {FACIAL_HAIR.map((f) => (
+                  <ChoiceButton key={f.id} label={f.id === "none" ? f.label : `${f.emoji} ${f.label}`} selected={config.facialHair === f.id} onClick={() => update({ facialHair: f.id })} />
+                ))}
+              </OptionRow>
+            </Section>
+          </>
+        )}
+
         {tab === "costume" && (
           <>
-            <Section title="Costume color">
+            <Section title="Outfit">
+              <OptionRow>
+                {OUTFITS.map((o) => (
+                  <ChoiceButton key={o.id} label={`${o.emoji} ${o.label}`} selected={config.outfit === o.id} onClick={() => update({ outfit: o.id })} />
+                ))}
+              </OptionRow>
+            </Section>
+            <Section title="Colour">
               <ColorRow>
                 {COSTUME_COLORS.map((c) => (
                   <Swatch key={c} color={c} selected={config.costume === c} onClick={() => update({ costume: c })} />
@@ -208,13 +243,23 @@ export default function AvatarBuilder({ initialConfig, onSave, saving }: Props) 
           </Section>
         )}
 
-        {tab === "accessory" && (
+        {tab === "extras" && (
           <Section title="Accessories">
             <OptionRow>
               {ACCESSORIES.map((a) => (
                 <ChoiceButton key={a.id} label={a.id === "none" ? a.label : `${a.emoji} ${a.label}`} selected={config.accessory === a.id} onClick={() => update({ accessory: a.id })} />
               ))}
             </OptionRow>
+          </Section>
+        )}
+
+        {tab === "scene" && (
+          <Section title="Background">
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
+              {BACKGROUNDS.map((b) => (
+                <BackgroundTile key={b.id} bg={b.id} label={b.label} selected={config.background === b.id} onClick={() => update({ background: b.id })} />
+              ))}
+            </div>
           </Section>
         )}
       </div>
@@ -296,8 +341,8 @@ function Swatch({ color, selected, onClick }: { color: string; selected: boolean
     <button
       onClick={onClick}
       style={{
-        width: 40,
-        height: 40,
+        width: 38,
+        height: 38,
         borderRadius: "50%",
         border: selected ? "3px solid var(--primary-light)" : "3px solid transparent",
         background: color,
@@ -308,6 +353,42 @@ function Swatch({ color, selected, onClick }: { color: string; selected: boolean
       }}
       aria-label={`Color ${color}`}
     />
+  );
+}
+
+const BG_COLORS: Record<string, [string, string]> = {
+  glow: ["#a855f7", "#241338"],
+  sky: ["#38bdf8", "#0c4a6e"],
+  sunset: ["#fb923c", "#7c2d12"],
+  space: ["#3b0764", "#020617"],
+  mint: ["#6ee7b7", "#065f46"],
+  bubblegum: ["#f9a8d4", "#831843"],
+  forest: ["#86efac", "#14532d"],
+  none: ["#241338", "#1a0b2e"],
+};
+
+function BackgroundTile({ bg, label, selected, onClick }: { bg: string; label: string; selected: boolean; onClick: () => void }) {
+  const [c1, c2] = BG_COLORS[bg] ?? ["#241338", "#1a0b2e"];
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        borderRadius: 12,
+        border: selected ? "2px solid var(--primary-light)" : "2px solid transparent",
+        background: `linear-gradient(135deg, ${c1}, ${c2})`,
+        cursor: "pointer",
+        transition: "all 0.18s",
+        transform: selected ? "scale(1.05)" : "scale(1)",
+        padding: "16px 4px 8px",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: 4,
+      }}
+    >
+      {selected && <Check size={12} style={{ color: "#fff" }} />}
+      <span style={{ fontSize: 11, fontWeight: 700, color: "#fff", textShadow: "0 1px 2px rgba(0,0,0,0.5)" }}>{label}</span>
+    </button>
   );
 }
 
