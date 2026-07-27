@@ -34,6 +34,7 @@ export default function Navbar() {
 
   const isTeacher = profile?.role === "teacher";
   const isGuardian = profile?.role === "guardian";
+  const { isAdmin } = useAuth();
 
   const studentLinks = [
     { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -41,6 +42,7 @@ export default function Navbar() {
     { to: "/programmes", label: "Programmes", icon: Layers },
     { to: "/leaderboard", label: "Leaderboard", icon: Trophy },
     { to: "/friends", label: "Friends", icon: Users },
+    { to: "/teacher", label: "Teacher Hub", icon: BookOpenCheck },
     { to: "/past-papers", label: "Past Papers", icon: FileText },
     { to: "/pathway", label: "Pathway", icon: Award },
     { to: "/certificates", label: "Certificates", icon: BookOpen },
@@ -70,7 +72,7 @@ export default function Navbar() {
     { to: "/settings", label: "Settings", icon: Settings },
   ];
 
-  const links = isTeacher ? teacherLinks : isGuardian ? guardianLinks : studentLinks;
+  const links = isAdmin ? studentLinks : isTeacher ? teacherLinks : isGuardian ? guardianLinks : studentLinks;
 
   const handleSignOut = async () => {
     await signOut();
@@ -97,8 +99,13 @@ export default function Navbar() {
             alt="Brainwave"
             style={{ width: 38, height: 38, borderRadius: 10, objectFit: "cover", border: "1px solid var(--gold)" }}
           />
-          <span style={{ fontFamily: "Lexend, sans-serif", fontWeight: 700, fontSize: 18 }}>
-            Brainwave <span className="text-gold">Science &amp; Maths</span>
+          <span style={{ fontFamily: "Lexend, sans-serif", fontWeight: 700, fontSize: 18, display: "flex", alignItems: "center", gap: 8 }}>
+            <span>Brainwave <span className="text-gold">Science &amp; Maths</span></span>
+            {isAdmin && (
+              <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: 0.5, color: "#1a0b2e", background: "linear-gradient(135deg, var(--gold), #e08a00)", padding: "3px 8px", borderRadius: 999 }}>
+                ADMIN
+              </span>
+            )}
           </span>
         </Link>
 
@@ -132,7 +139,11 @@ export default function Navbar() {
               })}
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginLeft: 6 }}>
-              {isTeacher ? (
+              {isAdmin ? (
+                <div className="badge mobile-hide" style={{ background: "linear-gradient(135deg, var(--gold), #e08a00)", color: "#1a0b2e" }}>
+                  Admin
+                </div>
+              ) : isTeacher ? (
                 <div className="badge mobile-hide" style={{ background: "rgba(245,200,66,0.14)", color: "var(--gold)" }}>
                   Teacher
                 </div>
@@ -203,7 +214,11 @@ export default function Navbar() {
           })}
           <div className="mobile-menu-footer">
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, padding: "0 16px" }}>
-              {isTeacher ? (
+              {isAdmin ? (
+                <div className="badge" style={{ background: "linear-gradient(135deg, var(--gold), #e08a00)", color: "#1a0b2e" }}>
+                  Admin
+                </div>
+              ) : isTeacher ? (
                 <div className="badge" style={{ background: "rgba(245,200,66,0.14)", color: "var(--gold)" }}>
                   Teacher
                 </div>

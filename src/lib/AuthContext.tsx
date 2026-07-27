@@ -4,11 +4,15 @@ import { supabase } from "./supabase";
 import type { Profile, Role, School } from "./supabase";
 import type { YearId, Programme, CheckpointStage, IgcseSubjectId } from "./quizData";
 
+const ADMIN_EMAIL = "ofoeraphael2010@gmail.com";
+
 type AuthState = {
   session: Session | null;
   user: User | null;
   profile: Profile | null;
+  isAdmin: boolean;
   loading: boolean;
+  // ... (rest unchanged below)
   signUp: (
     email: string,
     password: string,
@@ -257,9 +261,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: null };
   };
 
+  const isAdmin = !!user && user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+
   return (
     <AuthContext.Provider
-      value={{ session, user, profile, loading, signUp, signIn, signOut, refreshProfile, setYear, setEmailUpdates, setTimerPrefs, setProgramme, setRole, joinSchool, leaveSchool, createSchool, sendFriendRequest, acceptFriendRequest, declineFriendRequest, removeFriend }}
+      value={{ session, user, profile, isAdmin, loading, signUp, signIn, signOut, refreshProfile, setYear, setEmailUpdates, setTimerPrefs, setProgramme, setRole, joinSchool, leaveSchool, createSchool, sendFriendRequest, acceptFriendRequest, declineFriendRequest, removeFriend }}
     >
       {children}
     </AuthContext.Provider>

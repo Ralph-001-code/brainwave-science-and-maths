@@ -37,7 +37,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 function StudentRoute({ children }: { children: React.ReactNode }) {
-  const { profile, loading } = useAuth();
+  const { profile, isAdmin, loading } = useAuth();
   if (loading) {
     return (
       <div className="app-bg" style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
@@ -45,12 +45,13 @@ function StudentRoute({ children }: { children: React.ReactNode }) {
       </div>
     );
   }
+  if (isAdmin) return <>{children}</>;
   if (profile?.role === "teacher") return <Navigate to="/teacher" replace />;
   return <>{children}</>;
 }
 
 function TeacherRoute({ children }: { children: React.ReactNode }) {
-  const { profile, loading } = useAuth();
+  const { profile, isAdmin, loading } = useAuth();
   if (loading) {
     return (
       <div className="app-bg" style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
@@ -58,6 +59,7 @@ function TeacherRoute({ children }: { children: React.ReactNode }) {
       </div>
     );
   }
+  if (isAdmin) return <>{children}</>;
   if (profile && profile.role !== "teacher" && profile.role !== "guardian") return <Navigate to="/dashboard" replace />;
   return <>{children}</>;
 }
