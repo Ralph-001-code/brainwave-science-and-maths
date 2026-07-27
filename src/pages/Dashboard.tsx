@@ -4,8 +4,10 @@ import { useAuth } from "../lib/AuthContext";
 import { supabase } from "../lib/supabase";
 import {
   YEARS, getYear, getRankForXp, getNextRank, PROGRAMMES,
-  type YearId, type Programme,
+  type YearId, type Programme, type CheckpointStage,
 } from "../lib/quizData";
+import { CHECKPOINT_STAGES } from "../lib/checkpointData";
+import { IGCSE_SUBJECTS } from "../lib/igcseData";
 import { CHANNEL } from "../lib/config";
 import { useSeo } from "../lib/useSeo";
 import type { QuizAttempt, Certificate } from "../lib/supabase";
@@ -72,6 +74,11 @@ export default function Dashboard() {
   }
 
   const yr = getYear(profile.year_id as YearId);
+  const isPrimary = profile.programme === "primary";
+  const isCheckpoint = profile.programme === "checkpoint";
+  const isIgcse = profile.programme === "igcse";
+  const checkpointStageInfo = CHECKPOINT_STAGES.find((s) => s.id === (profile.checkpoint_stage as CheckpointStage));
+  const igcseCount = profile.igcse_subjects?.length ?? 0;
   const rank = getRankForXp(profile.xp);
   const nextRank = getNextRank(profile.xp);
   const RankIcon = RANK_ICONS[rank.icon] ?? Sprout;
@@ -93,7 +100,13 @@ export default function Dashboard() {
           Welcome back, <span className="gradient-text">{name}</span>
         </h1>
         <p className="text-muted" style={{ fontSize: 16 }}>
-          You're in <span style={{ color: yr.color, fontWeight: 600 }}>{yr.name}</span> ({yr.ageRange}). Here's your progress.
+          {isPrimary ? (
+            <>You're in <span style={{ color: yr.color, fontWeight: 600 }}>{yr.name}</span> ({yr.ageRange}). Here's your progress.</>
+          ) : isCheckpoint ? (
+            <>You're studying <span style={{ color: checkpointStageInfo?.color ?? "var(--gold)", fontWeight: 600 }}>{checkpointStageInfo?.name ?? "Checkpoint"}</span>. Here's your progress.</>
+          ) : (
+            <>You're preparing for your <span style={{ color: "var(--secondary)", fontWeight: 600 }}>IGCSE</span> exams{igcseCount > 0 ? ` · ${igcseCount} subject${igcseCount === 1 ? "" : "s"}` : ""}. Here's your progress.</>
+          )}
         </p>
         {!name && (
           <div style={{ marginTop: 12, padding: "10px 16px", borderRadius: 10, background: "rgba(168,85,247,0.10)", border: "1px solid rgba(168,85,247,0.25)", fontSize: 14, display: "flex", alignItems: "center", gap: 10 }}>
@@ -107,7 +120,9 @@ export default function Dashboard() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 16, marginBottom: 28 }}>
         <StatCard icon={Zap} label="Total XP" value={profile.xp} color="var(--gold)" />
         <StatCard icon={Flame} label="Day streak" value={profile.streak} color="var(--warning)" />
-        <StatCard icon={GraduationCap} label="Year" value={yr.name} color={yr.color} />
+        {isPrimary && <StatCard icon={GraduationCap} label="Year" value={yr.name} color={yr.color} />}
+        {isCheckpoint && <StatCard icon={Award} label="Stage" value={checkpointStageInfo?.shortName ?? "Checkpoint"} color={checkpointStageInfo?.color ?? "var(--gold)"} />}
+        {isIgcse && <StatCard icon={BookOpen} label="Subjects" value={igcseCount} color="var(--secondary)" />}
         <StatCard icon={RankIcon} label="Rank" value={rank.name} color="var(--primary-light)" />
         <StatCard icon={Target} label="Quizzes taken" value={totalQuizzes} color="var(--secondary)" />
         <StatCard icon={TrendingUp} label="Avg score" value={`${avgScore}%`} color="var(--success)" />
@@ -196,7 +211,9 @@ export default function Dashboard() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16, marginBottom: 28 }}>
         <ActionCard to="/pathway" icon={Award} title="Learning Pathway" body="Follow your step-by-step course path and track your progress." cta="View pathway" accent="var(--success)" />
         <ActionCard to="/daily" icon={Calendar} title="Daily Quiz" body="Take today's quiz and keep your streak going." cta="Start daily quiz" accent="var(--gold)" />
-        <ActionCard to="/years" icon={GraduationCap} title="Your Year Topics" body="Jump into a topic in your year group." cta="Browse topics" accent="var(--primary)" />
+        {isPrimary && <ActionCard to="/years" icon={GraduationCap} title="Your Year Topics" body="Jump into a topic in your year group." cta="Browse topics" accent="var(--primary)" />}
+        {isCheckpoint && <ActionCard to="/checkpoint" icon={Award} title="Checkpoint Topics" body="Pick your stage and subject, then practice." cta="Browse topics" accent="var(--gold)" />}
+        {isIgcse && <ActionCard to="/igcse" icon={BookOpen} title="Your Subjects" body="Manage your IGCSE subjects and start a topic." cta="Choose subjects" accent="var(--secondary)" />}
         <ActionCard to="/practice" icon={Pencil} title="Practice" body="Drill any topic from your year, any time." cta="Practice now" accent="var(--secondary)" />
         <ActionCard to="/past-papers" icon={FileText} title="Past Papers" body="Cambridge-style exam questions from every programme." cta="Browse past papers" accent="var(--gold)" />
       </div>
