@@ -2,6 +2,7 @@ import { useState, FormEvent } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { YEARS, PROGRAMMES, type YearId, type Programme, type CheckpointStage, type IgcseSubjectId } from "../lib/quizData";
+import { CHECKPOINT_STAGES } from "../lib/checkpointData";
 import { CHANNEL } from "../lib/config";
 import { ArrowRight, AlertCircle, User, Mail, Lock, GraduationCap, Youtube, Bell, Layers, Users, BookOpen, Shield } from "lucide-react";
 import type { Role } from "../lib/supabase";
@@ -17,6 +18,7 @@ export default function Auth() {
   const [lastName, setLastName] = useState("");
   const [yearId, setYearId] = useState<YearId>("year3");
   const [programme, setProgramme] = useState<Programme>("primary");
+  const [checkpointStage, setCheckpointStage] = useState<CheckpointStage>("stage6");
   const [role, setRole] = useState<Role>("student");
   const [emailUpdates, setEmailUpdates] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -45,9 +47,9 @@ export default function Auth() {
           setBusy(false);
           return;
         }
-        const { error: err } = await signUp(email.trim(), password, username.trim(), firstName.trim(), lastName.trim(), yearId, emailUpdates, programme, null, [], role);
+        const { error: err } = await signUp(email.trim(), password, username.trim(), firstName.trim(), lastName.trim(), yearId, emailUpdates, programme, programme === "checkpoint" ? checkpointStage : null, [], role);
         if (err) setError(translateError(err));
-        else navigate(role === "teacher" ? "/teacher" : "/dashboard");
+        else navigate(role === "teacher" ? "/teacher" : programme === "checkpoint" ? "/checkpoint" : programme === "igcse" ? "/igcse" : "/dashboard");
       } else {
         const { error: err } = await signIn(email.trim(), password);
         if (err) setError(translateError(err));
@@ -188,6 +190,7 @@ export default function Auth() {
                   </p>
                 </label>
 
+                {programme === "primary" && (
                 <label style={{ display: "block" }}>
                   <span style={{ fontSize: 13, fontWeight: 600, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
                     <GraduationCap size={14} /> Your year group
@@ -221,6 +224,50 @@ export default function Auth() {
                     We'll show you questions for your year group. You can change this any time in Settings.
                   </p>
                 </label>
+                )}
+
+                {programme === "checkpoint" && (
+                <label style={{ display: "block" }}>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
+                    <GraduationCap size={14} /> Your Checkpoint stage
+                  </span>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 8 }}>
+                    {CHECKPOINT_STAGES.map((s) => {
+                      const sel = checkpointStage === s.id;
+                      return (
+                        <button
+                          type="button"
+                          key={s.id}
+                          onClick={() => setCheckpointStage(s.id)}
+                          style={{
+                            padding: "12px 8px",
+                            borderRadius: 10,
+                            border: `1px solid ${sel ? s.color : "var(--border)"}`,
+                            background: sel ? `${s.color}1f` : "var(--bg-soft)",
+                            color: sel ? s.color : "var(--text-muted)",
+                            fontWeight: 600,
+                            fontSize: 13,
+                            transition: "all 0.18s",
+                            textAlign: "center",
+                          }}
+                        >
+                          {s.name}
+                          <div style={{ fontSize: 10, fontWeight: 500, opacity: 0.8, marginTop: 4 }}>{s.shortName} · {s.year}</div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p className="text-muted" style={{ fontSize: 12, marginTop: 8 }}>
+                    You can change your stage any time on the Checkpoint page.
+                  </p>
+                </label>
+                )}
+
+                {programme === "igcse" && (
+                <div style={{ padding: "12px 14px", borderRadius: 10, background: "var(--bg-soft)", border: "1px solid var(--border)", fontSize: 13, color: "var(--text-muted)" }}>
+                  No year group needed for IGCSE — you'll pick your subjects after signing up.
+                </div>
+                )}
                 </>
                 )}
 
