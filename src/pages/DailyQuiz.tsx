@@ -6,7 +6,8 @@ import {
   TOPICS_BY_YEAR, getYear, getRankForXp,
   type YearId, type Question, type Topic,
 } from "../lib/quizData";
-import { Calendar, Flame, CheckCircle2, XCircle, ArrowRight, Zap, Trophy } from "lucide-react";
+import { Calendar, Flame, CheckCircle2, XCircle, ArrowRight, Zap, Trophy, Lock, Snowflake, Gift } from "lucide-react";
+import { checkNewUnlocks, freezesEarned, FREEZE_MAX, type StreakMilestone } from "../lib/avatarUnlocks";
 
 type Phase = "intro" | "playing" | "finished";
 
@@ -51,6 +52,8 @@ export default function DailyQuiz() {
   const [revealed, setRevealed] = useState(false);
   const [score, setScore] = useState(0);
   const [saving, setSaving] = useState(false);
+  const [newUnlocks, setNewUnlocks] = useState<StreakMilestone[]>([]);
+  const [freezesEarnedToday, setFreezesEarnedToday] = useState(0);
 
   const yearId = (profile?.year_id as YearId) ?? "year1";
   const yr = getYear(yearId);
@@ -149,6 +152,32 @@ export default function DailyQuiz() {
               <div className="text-muted" style={{ fontSize: 12 }}>XP earned</div>
             </div>
           </div>
+
+          {freezesEarnedToday > 0 && (
+            <div className="pop" style={{ padding: 14, borderRadius: 12, background: "rgba(56,189,248,0.1)", border: "1px solid rgba(56,189,248,0.3)", marginBottom: 12, display: "flex", alignItems: "center", gap: 10, justifyContent: "center" }}>
+              <Snowflake size={20} style={{ color: "#38bdf8" }} />
+              <span style={{ fontWeight: 600, color: "#38bdf8" }}>You earned a streak freeze! Your streak is now safer.</span>
+            </div>
+          )}
+
+          {newUnlocks.length > 0 && (
+            <div className="pop" style={{ padding: 18, borderRadius: 12, background: "rgba(168,85,247,0.1)", border: "1px solid rgba(168,85,247,0.3)", marginBottom: 12 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, justifyContent: "center", marginBottom: 10 }}>
+                <Gift size={22} style={{ color: "var(--primary-light)" }} />
+                <span style={{ fontWeight: 700, color: "var(--primary-light)", fontSize: 16 }}>New avatar unlocks!</span>
+              </div>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center" }}>
+                {newUnlocks.map((m) => (
+                  <span key={`${m.reward.type}:${m.reward.id}`} className="badge" style={{ background: "rgba(168,85,247,0.15)", color: "var(--primary-light)" }}>
+                    {m.label}
+                  </span>
+                ))}
+              </div>
+              <Link to="/avatar" style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "var(--primary-light)", fontWeight: 600, fontSize: 14, marginTop: 10, textDecoration: "none" }}>
+                Try them in Avatar Studio <ArrowRight size={14} />
+              </Link>
+            </div>
+          )}
           <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
             <Link to="/dashboard" className="btn btn-primary">Dashboard <ArrowRight size={16} /></Link>
             <Link to="/practice" className="btn btn-ghost">Practice a topic</Link>
@@ -184,8 +213,15 @@ export default function DailyQuiz() {
     setSaving(true);
     const xpEarned = finalScore * 20;
     const today = new Date().toISOString().slice(0, 10);
-    const newStreak = bumpStreak(profile?.last_active, profile?.streak ?? 0, today);
-    const newXp = (profile?.xp ?? 0) + xpEarned;
+    const prevStreak = profile?.streak ?? 0;
+    const prevLastActive = profile?.last_active;
+    const prevFreezes = profile?.streak_freezes ?? 0;
+
+    const { newStreak, freezeUsed } = computeStreak(prevLastActive, prevStreak, prevFreezes, today);
+    const earned = freezesEarned(prevStreak, newStreak);
+    const finalFreezes = Math.min(FREEZE_MAX, prevFreezes - freezeUsed + earned);
+
+    const unlocksToAward = checkNewUnlocks(prevStreak, newStreak);
 
     await supabase.from("quiz_attempts").insert({
       user_id: user.id,
@@ -194,8 +230,27 @@ export default function DailyQuiz() {
       score: finalScore,
       total_questions: questions.length,
     });
-    await supabase.from("profiles").update({ xp: newXp, streak: newStreak, last_active: today }).eq("id", user.id);
+
+    await supabase.from("profiles").update({
+      xp: (profile?.xp ?? 0) + xpEarned,
+      streak: newStreak,
+      last_active: today,
+      streak_freezes: finalFreezes,
+    }).eq("id", user.id);
+
+    if (unlocksToAward.length > 0) {
+      await supabase.from("avatar_unlocks").insert(
+        unlocksToAward.map((m: StreakMilestone) => ({
+          user_id: user.id,
+          item_type: m.reward.type,
+          item_id: m.reward.id,
+        })),
+      );
+    }
+
     await refreshProfile();
+    setNewUnlocks(unlocksToAward);
+    setFreezesEarnedToday(earned);
     setSaving(false);
   };
 
@@ -255,10 +310,16 @@ export default function DailyQuiz() {
   );
 }
 
-function bumpStreak(last: string | null | undefined, streak: number, today: string): number {
-  if (!last) return 1;
+function computeStreak(
+  last: string | null | undefined,
+  streak: number,
+  freezes: number,
+  today: string,
+): { newStreak: number; freezeUsed: number } {
+  if (!last) return { newStreak: 1, freezeUsed: 0 };
   const diff = Math.round((new Date(today).getTime() - new Date(last).getTime()) / 86400000);
-  if (diff === 0) return Math.max(streak, 1);
-  if (diff === 1) return streak + 1;
-  return 1;
+  if (diff <= 0) return { newStreak: Math.max(streak, 1), freezeUsed: 0 };
+  if (diff === 1) return { newStreak: streak + 1, freezeUsed: 0 };
+  if (diff === 2 && freezes > 0) return { newStreak: streak + 1, freezeUsed: 1 };
+  return { newStreak: 1, freezeUsed: 0 };
 }

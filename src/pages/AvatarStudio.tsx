@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 
 export default function AvatarStudio() {
-  const { profile, user, refreshProfile } = useAuth();
+  const { profile, user, refreshProfile, unlocks } = useAuth();
   const [saving, setSaving] = useState(false);
 
   const currentConfig = profile?.avatar_config ? parseAvatarConfig(profile.avatar_config) : null;
@@ -46,7 +46,7 @@ export default function AvatarStudio() {
       </div>
 
       <div className="card fade-up" style={{ padding: 24 }}>
-        <AvatarBuilder initialConfig={currentConfig} onSave={handleSave} saving={saving} />
+        <AvatarBuilder initialConfig={currentConfig} onSave={handleSave} saving={saving} unlocks={unlocks} currentStreak={profile?.streak ?? 0} />
       </div>
     </div>
   );

@@ -23,12 +23,21 @@ import AvatarSvg, {
   type Accessory,
   type Background,
 } from "./AvatarSvg";
-import { Check, Shuffle, RotateCcw } from "lucide-react";
+import { Check, Shuffle, RotateCcw, Lock } from "lucide-react";
+import {
+  buildUnlockMap,
+  isItemUnlocked,
+  streakRequiredFor,
+  type UnlockEntry,
+  type UnlockItemType,
+} from "../lib/avatarUnlocks";
 
 type Props = {
   initialConfig: AvatarConfig | null;
   onSave: (config: AvatarConfig) => Promise<{ error: string | null }>;
   saving?: boolean;
+  unlocks?: UnlockEntry[];
+  currentStreak?: number;
 };
 
 const TABS = [
@@ -43,10 +52,11 @@ const TABS = [
 
 type TabId = (typeof TABS)[number]["id"];
 
-export default function AvatarBuilder({ initialConfig, onSave, saving }: Props) {
+export default function AvatarBuilder({ initialConfig, onSave, saving, unlocks = [], currentStreak = 0 }: Props) {
   const [config, setConfig] = useState<AvatarConfig>(initialConfig ? sanitizeAvatar(initialConfig) : { ...DEFAULT_AVATAR });
   const [tab, setTab] = useState<TabId>("body");
   const [saveMsg, setSaveMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const unlockMap = buildUnlockMap(unlocks);
 
   useEffect(() => {
     if (initialConfig) setConfig(sanitizeAvatar(initialConfig));
@@ -86,6 +96,12 @@ export default function AvatarBuilder({ initialConfig, onSave, saving }: Props) 
 
   const femaleHair = ["long", "ponytail", "braid", "bun", "wavy"];
   const maleHair = ["buzz", "spiky"];
+
+  const isLocked = (type: UnlockItemType, id: string): boolean => {
+    const req = streakRequiredFor(type, id);
+    if (req === null) return false;
+    return !isItemUnlocked(unlockMap, type, id);
+  };
 
   const setBodyType = (id: string) => {
     const bt = id as "male" | "female";
@@ -240,6 +256,8 @@ export default function AvatarBuilder({ initialConfig, onSave, saving }: Props) 
                 patchKey="outfit"
                 selected={config.outfit}
                 onSelect={(id) => update({ outfit: id as OutfitType })}
+                isLocked={(id) => isLocked("outfit", id)}
+                streakRequired={(id) => streakRequiredFor("outfit", id)}
               />
             </Section>
             <Section title="Colour">
@@ -269,6 +287,8 @@ export default function AvatarBuilder({ initialConfig, onSave, saving }: Props) 
               patchKey="pose"
               selected={config.pose}
               onSelect={(id) => update({ pose: id as Pose })}
+              isLocked={(id) => isLocked("pose", id)}
+              streakRequired={(id) => streakRequiredFor("pose", id)}
             />
           </Section>
         )}
@@ -281,6 +301,8 @@ export default function AvatarBuilder({ initialConfig, onSave, saving }: Props) 
               patchKey="accessory"
               selected={config.accessory}
               onSelect={(id) => update({ accessory: id as Accessory })}
+              isLocked={(id) => isLocked("accessory", id)}
+              streakRequired={(id) => streakRequiredFor("accessory", id)}
             />
           </Section>
         )}
@@ -293,6 +315,8 @@ export default function AvatarBuilder({ initialConfig, onSave, saving }: Props) 
               patchKey="background"
               selected={config.background}
               onSelect={(id) => update({ background: id as Background })}
+              isLocked={(id) => isLocked("background", id)}
+              streakRequired={(id) => streakRequiredFor("background", id)}
             />
           </Section>
         )}
@@ -337,6 +361,8 @@ function AvatarOptionPicker({
   selected,
   onSelect,
   patchKey,
+  isLocked,
+  streakRequired,
 }: {
   options: { id: string; label: string }[];
   config: AvatarConfig;
@@ -344,6 +370,8 @@ function AvatarOptionPicker({
   selected: string;
   onSelect: (id: string) => void;
   patchKey?: keyof AvatarConfig;
+  isLocked?: (id: string) => boolean;
+  streakRequired?: (id: string) => number | null;
 }) {
   return (
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(90px, 1fr))", gap: 10 }}>
@@ -355,15 +383,18 @@ function AvatarOptionPicker({
             : {};
         const previewConfig: AvatarConfig = { ...config, ...patch };
         const isSelected = selected === opt.id;
+        const locked = isLocked ? isLocked(opt.id) : false;
+        const req = streakRequired ? streakRequired(opt.id) : null;
         return (
           <button
             key={opt.id}
-            onClick={() => onSelect(opt.id)}
+            onClick={() => !locked && onSelect(opt.id)}
+            disabled={locked}
             style={{
               borderRadius: 12,
               border: isSelected ? "2.5px solid var(--primary-light)" : "2px solid var(--border)",
               background: isSelected ? "rgba(168,85,247,0.1)" : "var(--bg-soft)",
-              cursor: "pointer",
+              cursor: locked ? "not-allowed" : "pointer",
               padding: 4,
               display: "flex",
               flexDirection: "column",
@@ -372,9 +403,23 @@ function AvatarOptionPicker({
               transition: "all 0.18s",
               transform: isSelected ? "scale(1.04)" : "scale(1)",
               boxShadow: isSelected ? "0 0 12px rgba(168,85,247,0.3)" : "none",
+              opacity: locked ? 0.5 : 1,
+              position: "relative",
             }}
           >
-            <AvatarSvg config={previewConfig} size={80} />
+            <div style={{ position: "relative", filter: locked ? "grayscale(1) blur(1px)" : "none" }}>
+              <AvatarSvg config={previewConfig} size={80} />
+            </div>
+            {locked ? (
+              <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -60%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+                <Lock size={18} style={{ color: "var(--text-muted)" }} />
+                {req !== null && (
+                  <span style={{ fontSize: 9, fontWeight: 700, color: "var(--warning)", background: "rgba(245,158,11,0.15)", padding: "1px 6px", borderRadius: 999 }}>
+                    {req}-day
+                  </span>
+                )}
+              </div>
+            ) : null}
             <span style={{ fontSize: 11, fontWeight: 600, color: isSelected ? "var(--primary-light)" : "var(--text-muted)", paddingBottom: 2 }}>
               {opt.label}
             </span>

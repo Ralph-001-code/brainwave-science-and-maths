@@ -52,6 +52,7 @@ export type Profile = {
   timer_duration: number;
   role: Role;
   school_id: string | null;
+  streak_freezes: number;
 };
 
 export type QuizAttempt = {

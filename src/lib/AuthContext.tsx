@@ -3,6 +3,7 @@ import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "./supabase";
 import type { Profile, Role, School } from "./supabase";
 import type { YearId, Programme, CheckpointStage, IgcseSubjectId } from "./quizData";
+import type { UnlockEntry } from "./avatarUnlocks";
 
 const ADMIN_EMAIL = "ofoeraphael2010@gmail.com";
 
@@ -41,6 +42,8 @@ type AuthState = {
   acceptFriendRequest: (friendshipId: string) => Promise<{ error: string | null }>;
   declineFriendRequest: (friendshipId: string) => Promise<{ error: string | null }>;
   removeFriend: (friendshipId: string) => Promise<{ error: string | null }>;
+  unlocks: UnlockEntry[];
+  refreshUnlocks: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthState | undefined>(undefined);
@@ -49,6 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [unlocks, setUnlocks] = useState<UnlockEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
   async function loadProfile(userId: string) {
@@ -65,6 +69,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return data as Profile | null;
   }
 
+  async function loadUnlocks(userId: string) {
+    const { data, error } = await supabase
+      .from("avatar_unlocks")
+      .select("item_type, item_id")
+      .eq("user_id", userId);
+    if (error) return;
+    setUnlocks((data as UnlockEntry[]) ?? []);
+  }
+
   useEffect(() => {
     let mounted = true;
 
@@ -73,7 +86,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(data.session);
       setUser(data.session?.user ?? null);
       if (data.session?.user) {
-        loadProfile(data.session.user.id).finally(() => mounted && setLoading(false));
+        Promise.all([
+          loadProfile(data.session.user.id),
+          loadUnlocks(data.session.user.id),
+        ]).finally(() => mounted && setLoading(false));
       } else {
         setLoading(false);
       }
@@ -84,11 +100,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(newSession?.user ?? null);
       if (newSession?.user) {
         (async () => {
-          await loadProfile(newSession.user.id);
+          await Promise.all([
+            loadProfile(newSession.user.id),
+            loadUnlocks(newSession.user.id),
+          ]);
           setLoading(false);
         })();
       } else {
         setProfile(null);
+        setUnlocks([]);
         setLoading(false);
       }
     });
@@ -147,10 +167,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => {
     await supabase.auth.signOut();
     setProfile(null);
+    setUnlocks([]);
   };
 
   const refreshProfile = async () => {
-    if (user) await loadProfile(user.id);
+    if (user) await Promise.all([loadProfile(user.id), loadUnlocks(user.id)]);
   };
 
   const setYear: AuthState["setYear"] = async (yearId) => {
@@ -265,7 +286,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ session, user, profile, isAdmin, loading, signUp, signIn, signOut, refreshProfile, setYear, setEmailUpdates, setTimerPrefs, setProgramme, setRole, joinSchool, leaveSchool, createSchool, sendFriendRequest, acceptFriendRequest, declineFriendRequest, removeFriend }}
+      value={{ session, user, profile, isAdmin, loading, unlocks, refreshUnlocks: () => user ? loadUnlocks(user.id) : Promise.resolve(), signUp, signIn, signOut, refreshProfile, setYear, setEmailUpdates, setTimerPrefs, setProgramme, setRole, joinSchool, leaveSchool, createSchool, sendFriendRequest, acceptFriendRequest, declineFriendRequest, removeFriend }}
     >
       {children}
     </AuthContext.Provider>

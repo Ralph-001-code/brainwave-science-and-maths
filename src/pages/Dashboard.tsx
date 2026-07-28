@@ -16,7 +16,9 @@ import {
   Flame, Zap, ArrowRight, Calendar, GraduationCap, Pencil,
   TrendingUp, Target, Crown, Star, Medal, Sprout, Youtube, Trophy,
   Award, BookOpen, Layers, CheckCircle2, User, FileText, Bell,
+  Gift, Snowflake,
 } from "lucide-react";
+import { getNextMilestone, STREAK_MILESTONES, type StreakMilestone } from "../lib/avatarUnlocks";
 
 const RANK_ICONS: Record<string, any> = { Sprout, Star, Medal, Crown };
 const PROG_ICONS: Record<string, any> = { GraduationCap, Award, BookOpen };
@@ -157,6 +159,56 @@ export default function Dashboard() {
             transition: "width 0.8s ease",
           }} />
         </div>
+      </div>
+
+      {/* Streak milestones & unlocks */}
+      <div className="card fade-up" style={{ marginBottom: 28 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, flexWrap: "wrap", gap: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <Gift size={22} style={{ color: "var(--primary-light)" }} />
+            <div>
+              <div style={{ fontWeight: 700, fontSize: 18 }}>Streak Rewards</div>
+              <div className="text-muted" style={{ fontSize: 13 }}>Keep your streak going to unlock avatar items</div>
+            </div>
+          </div>
+          {(profile.streak_freezes ?? 0) > 0 && (
+            <div className="badge" style={{ background: "rgba(56,189,248,0.15)", color: "#38bdf8", display: "flex", alignItems: "center", gap: 4 }}>
+              <Snowflake size={14} /> {profile.streak_freezes} freeze{profile.streak_freezes > 1 ? "s" : ""}
+            </div>
+          )}
+        </div>
+        <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 6 }}>
+          {STREAK_MILESTONES.map((m) => {
+            const reached = profile.streak >= m.streak;
+            const next = !reached && getNextMilestone(profile.streak)?.streak === m.streak;
+            return (
+              <div key={`${m.reward.type}:${m.reward.id}`} style={{
+                flex: "0 0 auto",
+                padding: "12px 16px",
+                borderRadius: 12,
+                border: reached ? "1.5px solid var(--success)" : next ? "1.5px solid var(--primary-light)" : "1px solid var(--border)",
+                background: reached ? "rgba(34,197,94,0.08)" : next ? "rgba(168,85,247,0.08)" : "var(--bg-soft)",
+                display: "flex",
+                flexDirection: "column",
+                gap: 4,
+                minWidth: 120,
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  {reached ? <CheckCircle2 size={16} style={{ color: "var(--success)" }} /> : <Flame size={16} style={{ color: next ? "var(--primary-light)" : "var(--text-muted)" }} />}
+                  <span style={{ fontWeight: 700, fontSize: 14, color: reached ? "var(--success)" : "var(--text)" }}>{m.streak} days</span>
+                </div>
+                <span style={{ fontSize: 13, color: "var(--text-muted)" }}>{m.label}</span>
+              </div>
+            );
+          })}
+        </div>
+        {getNextMilestone(profile.streak) && (
+          <div style={{ marginTop: 12, fontSize: 14, color: "var(--text-muted)" }}>
+            <Flame size={14} style={{ verticalAlign: "middle", marginRight: 4, color: "var(--warning)" }} />
+            {getNextMilestone(profile.streak)!.streak - profile.streak} day{(getNextMilestone(profile.streak)!.streak - profile.streak) > 1 ? "s" : ""} to unlock <span style={{ color: "var(--primary-light)", fontWeight: 600 }}>{getNextMilestone(profile.streak)!.label}</span>
+            <Link to="/daily" style={{ marginLeft: 10, color: "var(--gold)", fontWeight: 600, textDecoration: "none" }}>Take today's quiz <ArrowRight size={12} style={{ verticalAlign: "middle" }} /></Link>
+          </div>
+        )}
       </div>
 
       {/* Programmes */}
