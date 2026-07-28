@@ -356,9 +356,9 @@ export default function AvatarSvg({ config, size = 200 }: { config: AvatarConfig
       {/* 3. Chair for sit pose */}
       {a.sit && (
         <g>
-          <rect x="64" y="150" width="72" height="10" rx="5" fill="#5b3a8c" />
-          <rect x="66" y="158" width="6" height="22" rx="3" fill="#4a2d70" />
-          <rect x="128" y="158" width="6" height="22" rx="3" fill="#4a2d70" />
+          <path d="M64 150 Q64 146 68 146 L132 146 Q136 146 136 150 Q136 154 132 154 L68 154 Q64 154 64 150 Z" fill="#5b3a8c" />
+          <path d="M66 154 Q64 154 64 158 L64 176 Q64 180 68 180 Q72 180 72 176 L72 158 Q72 154 70 154 Z" fill="#4a2d70" />
+          <path d="M130 154 Q128 154 128 158 L128 176 Q128 180 132 180 Q136 180 136 176 L136 158 Q136 154 134 154 Z" fill="#4a2d70" />
         </g>
       )}
 
@@ -387,9 +387,9 @@ export default function AvatarSvg({ config, size = 200 }: { config: AvatarConfig
         </g>
       )}
 
-      {/* 7. Torso — smooth rounded shape */}
+      {/* 7. Torso — smooth organic rounded shape */}
       <path
-        d="M74 120 Q68 112 76 107 L92 104 Q100 102 108 104 L124 107 Q132 112 126 120 L128 150 Q128 156 122 156 L78 156 Q72 156 72 150 Z"
+        d="M74 120 Q68 112 76 107 Q84 104 92 104 Q100 102 108 104 Q116 104 124 107 Q132 112 126 120 Q130 135 128 150 Q127 156 122 156 Q113 157 100 157 Q87 157 78 156 Q73 156 72 150 Q70 135 74 120 Z"
         fill={fillFor(`url(#torso-${uid})`)}
         stroke={costumeShade}
         strokeWidth="1.2"
@@ -412,8 +412,8 @@ export default function AvatarSvg({ config, size = 200 }: { config: AvatarConfig
       {/* 11. Pose props */}
       {c.pose === "read" && (
         <g>
-          <path d="M80 84 L100 80 L120 84 L120 110 L100 106 L80 110 Z" fill="#fafafa" stroke="#e2e2e2" strokeWidth="1" />
-          <path d="M100 80 L100 106" stroke="#d4d4d4" strokeWidth="1" />
+          <path d="M80 84 Q90 81 100 80 Q110 81 120 84 Q120 97 120 110 Q110 107 100 106 Q90 107 80 110 Q80 97 80 84 Z" fill="#fafafa" stroke="#e2e2e2" strokeWidth="1" />
+          <path d="M100 80 Q100 93 100 106" fill="none" stroke="#d4d4d4" strokeWidth="1" />
           <g stroke="#c8c8c8" strokeWidth="0.8">
             <line x1="85" y1="90" x2="97" y2="88" /><line x1="85" y1="95" x2="97" y2="93" /><line x1="85" y1="100" x2="97" y2="98" />
             <line x1="103" y1="88" x2="115" y2="90" /><line x1="103" y1="93" x2="115" y2="95" /><line x1="103" y1="98" x2="115" y2="100" />
@@ -627,8 +627,8 @@ function Outfit({ config, shade, light, fillFor, uid }: { config: AvatarConfig; 
   if (o === "labcoat") {
     return (
       <g>
-        <path d="M72 108 L74 156 L126 156 L128 108 Q114 104 100 104 Q86 104 72 108 Z" fill="#f4f4f5" stroke="#d4d4d8" strokeWidth="1" />
-        <path d="M100 104 L94 124 L100 116 L106 124 Z" fill="#e4e4e7" />
+        <path d="M72 108 Q70 132 74 156 Q100 158 126 156 Q130 132 128 108 Q114 104 100 104 Q86 104 72 108 Z" fill="#f4f4f5" stroke="#d4d4d8" strokeWidth="1" />
+        <path d="M100 104 Q96 114 94 124 Q97 120 100 116 Q103 120 106 124 Q104 114 100 104 Z" fill="#e4e4e7" />
         <circle cx="100" cy="120" r="1.5" fill="#a1a1aa" />
         <circle cx="100" cy="132" r="1.5" fill="#a1a1aa" />
         <circle cx="100" cy="144" r="1.5" fill="#a1a1aa" />
@@ -638,7 +638,7 @@ function Outfit({ config, shade, light, fillFor, uid }: { config: AvatarConfig; 
   if (o === "hero") {
     return (
       <g>
-        <path d="M88 124 L112 124 L112 144 L100 150 L88 144 Z" fill={light} stroke={shade} strokeWidth="1" />
+        <path d="M88 124 Q100 120 112 124 Q114 134 112 144 Q100 150 88 144 Q86 134 88 124 Z" fill={light} stroke={shade} strokeWidth="1" />
         <text x="100" y="139" fontSize="12" textAnchor="middle" fill="#fff" fontWeight="bold">B</text>
       </g>
     );
@@ -655,19 +655,19 @@ function Outfit({ config, shade, light, fillFor, uid }: { config: AvatarConfig; 
   if (o === "astronaut") {
     return (
       <g>
-        <path d="M72 108 L128 108 L128 156 L72 156 Z" fill="#e2e8f0" stroke="#94a3b8" strokeWidth="1.2" />
-        <rect x="86" y="124" width="28" height="18" rx="3" fill="#1e293b" />
+        <path d="M72 108 Q70 132 72 156 Q100 159 128 156 Q130 132 128 108 Q114 104 100 104 Q86 104 72 108 Z" fill="#e2e8f0" stroke="#94a3b8" strokeWidth="1.2" />
+        <path d="M88 122 Q86 122 86 126 Q86 140 88 144 Q100 146 112 144 Q114 140 114 126 Q114 122 112 122 Z" fill="#1e293b" />
         <circle cx="93" cy="133" r="2.5" fill="#f87171" />
         <circle cx="100" cy="133" r="2.5" fill="#34d399" />
         <circle cx="107" cy="133" r="2.5" fill="#facc15" />
-        <path d="M72 112 L128 112" stroke="#94a3b8" strokeWidth="1" />
+        <path d="M74 112 Q100 110 126 112" fill="none" stroke="#94a3b8" strokeWidth="1" />
       </g>
     );
   }
   if (o === "jersey") {
     return (
       <g>
-        <path d="M74 108 L126 108 L126 120 L74 120 Z" fill={shade} />
+        <path d="M74 108 Q100 104 126 108 Q127 114 126 120 Q100 116 74 120 Z" fill={shade} />
         <text x="100" y="142" fontSize="20" textAnchor="middle" fill="#fff" fontWeight="bold" style={{ paintOrder: "stroke", stroke: shade, strokeWidth: 0.6 }}>7</text>
       </g>
     );
@@ -843,11 +843,11 @@ function renderAccessory(c: AvatarConfig, hairShade: string): React.ReactNode {
     case "glasses":
       return <g fill="none" stroke="#1a1a1a" strokeWidth="2.5"><circle cx="89" cy="65" r="9" /><circle cx="111" cy="65" r="9" /><line x1="98" y1="65" x2="102" y2="65" /></g>;
     case "sunglasses":
-      return <g><rect x="80" y="59" width="18" height="12" rx="5" fill="#1a1a1a" /><rect x="102" y="59" width="18" height="12" rx="5" fill="#1a1a1a" /><line x1="98" y1="64" x2="102" y2="64" stroke="#1a1a1a" strokeWidth="2" /><ellipse cx="86" cy="62" rx="4" ry="2" fill="#4a4a4a" opacity="0.6" /></g>;
+      return <g><path d="M80 60 Q80 57 83 57 L95 57 Q98 57 98 60 Q98 69 93 70 Q86 71 82 69 Q80 67 80 64 Z" fill="#1a1a1a" /><path d="M102 60 Q102 57 105 57 L117 57 Q120 57 120 60 Q120 69 115 70 Q108 71 104 69 Q102 67 102 64 Z" fill="#1a1a1a" /><path d="M98 64 Q100 63 102 64" fill="none" stroke="#1a1a1a" strokeWidth="2" /><ellipse cx="86" cy="62" rx="4" ry="2" fill="#4a4a4a" opacity="0.6" /></g>;
     case "headband":
-      return <rect x="68" y="48" width="64" height="6" rx="3" fill="#f87171" />;
+      return <path d="M68 48 Q100 45 132 48 Q132 52 132 54 Q100 51 68 54 Z" fill="#f87171" />;
     case "headphones":
-      return <g><path d="M70 50 Q70 30 100 30 Q130 30 130 50" fill="none" stroke="#1e293b" strokeWidth="4" /><rect x="64" y="58" width="12" height="18" rx="5" fill="#334155" /><rect x="124" y="58" width="12" height="18" rx="5" fill="#334155" /></g>;
+      return <g><path d="M70 50 Q70 30 100 30 Q130 30 130 50" fill="none" stroke="#1e293b" strokeWidth="4" /><path d="M64 58 Q62 58 62 62 Q62 72 64 76 Q70 77 72 74 Q72 64 72 60 Q70 58 68 58 Z" fill="#334155" /><path d="M136 58 Q138 58 138 62 Q138 72 136 76 Q130 77 128 74 Q128 64 128 60 Q130 58 132 58 Z" fill="#334155" /></g>;
     case "mask":
       return <path d="M76 74 Q100 88 124 74 L124 80 Q100 92 76 80 Z" fill="#e2e8f0" stroke="#94a3b8" strokeWidth="1" />;
     case "bowtie":
