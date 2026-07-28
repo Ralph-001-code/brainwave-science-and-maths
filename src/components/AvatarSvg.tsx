@@ -408,9 +408,15 @@ export default function AvatarSvg({ config, size = 200 }: { config: AvatarConfig
         <path d="M92 98 Q92 106 90 112 L110 112 Q108 106 108 98 Z" fill={skinShade} />
         {/* Head — smooth egg shape */}
         <path d="M100 36 Q128 38 130 66 Q130 92 100 96 Q70 92 70 66 Q72 38 100 36 Z" fill={`url(#shade-${uid})`} />
-        {/* Ears */}
+        {/* Ears with inner detail */}
         <ellipse cx="71" cy="68" rx="4.5" ry="6.5" fill={skinShade} />
+        <ellipse cx="71" cy="68" rx="2.2" ry="3.5" fill={darken(skin, 0.22)} />
         <ellipse cx="129" cy="68" rx="4.5" ry="6.5" fill={skinShade} />
+        <ellipse cx="129" cy="68" rx="2.2" ry="3.5" fill={darken(skin, 0.22)} />
+
+        {/* Face side shading */}
+        <ellipse cx="76" cy="68" rx="7" ry="18" fill={skinShade} opacity="0.25" />
+        <ellipse cx="124" cy="68" rx="7" ry="18" fill={skinShade} opacity="0.25" />
 
         {/* Hair */}
         {renderHair(c, hairShade)}
@@ -418,48 +424,54 @@ export default function AvatarSvg({ config, size = 200 }: { config: AvatarConfig
         {/* Eyes */}
         {c.expression === "wink" ? (
           <g>
-            <ellipse cx="111" cy="64" rx="5" ry="6.5" fill="#fff" />
-            <circle cx="111" cy="65" r="3.2" fill={c.eyeColor} />
-            <circle cx="112.2" cy="63.5" r="1.1" fill="#fff" />
-            <path d="M83 64 Q89 63 95 64" fill="none" stroke={hairShade} strokeWidth="2.5" strokeLinecap="round" />
+            <ellipse cx="111" cy="66" rx="7" ry="8.5" fill="#fff" />
+            <circle cx="111" cy="67" r="5.5" fill={c.eyeColor} />
+            <circle cx="111" cy="67" r="3" fill={darken(c.eyeColor, 0.35)} />
+            <circle cx="113.5" cy="63.8" r="1.6" fill="#fff" />
+            <circle cx="109.5" cy="65.5" r="0.9" fill="#fff" />
+            <path d="M82.5 63.5 Q89 60.5 95.5 63.5" fill="none" stroke={hairShade} strokeWidth="2.5" strokeLinecap="round" />
           </g>
         ) : c.expression === "cool" ? (
           <g fill={hairShade}>
-            <path d="M83 60 Q89 58 95 61 L95 64 Q89 62 83 63 Z" />
-            <path d="M105 61 Q111 58 117 60 L117 63 Q111 62 105 64 Z" />
+            <path d="M82 62 Q89 60 96 63 L96 67 Q89 65 82 66 Z" />
+            <path d="M104 63 Q111 60 118 62 L118 66 Q111 65 104 67 Z" />
           </g>
         ) : (
           <g>
-            <ellipse cx="89" cy="64" rx="5" ry="6.5" fill="#fff" />
-            <ellipse cx="111" cy="64" rx="5" ry="6.5" fill="#fff" />
-            <circle cx="89" cy="65" r="3.2" fill={c.eyeColor} />
-            <circle cx="111" cy="65" r="3.2" fill={c.eyeColor} />
-            <circle cx="90.2" cy="63.5" r="1.1" fill="#fff" />
-            <circle cx="112.2" cy="63.5" r="1.1" fill="#fff" />
+            {/* Left eye */}
+            <ellipse cx="89" cy="66" rx="7" ry="8.5" fill="#fff" />
+            <circle cx="89" cy="67" r="5.5" fill={c.eyeColor} />
+            <circle cx="89" cy="67" r="3" fill={darken(c.eyeColor, 0.35)} />
+            <path d="M82.5 63.5 Q89 60.5 95.5 63.5" fill="none" stroke={hairShade} strokeWidth="2.5" strokeLinecap="round" />
+            <circle cx="91.5" cy="63.8" r="1.6" fill="#fff" />
+            <circle cx="87.5" cy="65.5" r="0.9" fill="#fff" />
+            {/* Right eye */}
+            <ellipse cx="111" cy="66" rx="7" ry="8.5" fill="#fff" />
+            <circle cx="111" cy="67" r="5.5" fill={c.eyeColor} />
+            <circle cx="111" cy="67" r="3" fill={darken(c.eyeColor, 0.35)} />
+            <path d="M104.5 63.5 Q111 60.5 117.5 63.5" fill="none" stroke={hairShade} strokeWidth="2.5" strokeLinecap="round" />
+            <circle cx="113.5" cy="63.8" r="1.6" fill="#fff" />
+            <circle cx="109.5" cy="65.5" r="0.9" fill="#fff" />
           </g>
         )}
 
         {/* Eyebrows */}
         {c.expression !== "cool" && (
-          <g fill="none" stroke={hairShade} strokeWidth="2.2" strokeLinecap="round">
-            <path d={c.expression === "surprised" ? "M83 56 L95 56" : "M83 57 Q89 54 95 57"} />
-            <path d={c.expression === "surprised" ? "M105 56 L117 56" : "M105 57 Q111 54 117 57"} />
+          <g fill="none" stroke={hairShade} strokeWidth="2.8" strokeLinecap="round">
+            <path d={c.expression === "surprised" ? "M82 57 L96 57" : "M82 58 Q89 54.5 96 58"} />
+            <path d={c.expression === "surprised" ? "M104 57 L118 57" : "M104 58 Q111 54.5 118 58"} />
           </g>
         )}
 
         {/* Nose */}
-        <path d="M100 68 Q97 74 100 76 Q103 74 100 68" fill={skinShade} opacity="0.4" />
+        <path d="M97.5 74 Q96 77 97.5 79 Q100 80.5 102.5 79 Q104 77 102.5 74" fill="none" stroke={skinShade} strokeWidth="1.4" strokeLinecap="round" opacity="0.55" />
 
         {/* Mouth */}
-        <Mouth expr={c.expression} />
+        <Mouth expr={c.expression} skin={skin} />
 
-        {/* Blush */}
-        {(c.expression === "grin" || c.expression === "wink") && (
-          <g fill="#ff8b8b" opacity="0.3">
-            <circle cx="80" cy="76" r="4.5" />
-            <circle cx="120" cy="76" r="4.5" />
-          </g>
-        )}
+        {/* Blush — always subtle */}
+        <circle cx="80" cy="76" r="6" fill="#ff9090" opacity="0.15" />
+        <circle cx="120" cy="76" r="6" fill="#ff9090" opacity="0.15" />
 
         {/* Facial hair */}
         {renderFacialHair(c, hairShade)}
@@ -494,7 +506,7 @@ export default function AvatarSvg({ config, size = 200 }: { config: AvatarConfig
   );
 }
 
-function Mouth({ expr }: { expr: Expression }) {
+function Mouth({ expr, skin }: { expr: Expression; skin: string }) {
   if (expr === "grin")
     return <path d="M88 78 Q100 92 112 78 Q100 86 88 78 Z" fill="#fff" stroke="#e8e8e8" strokeWidth="0.6" />;
   if (expr === "surprised")
@@ -503,7 +515,14 @@ function Mouth({ expr }: { expr: Expression }) {
     return <path d="M92 80 Q98 78 106 80" fill="none" stroke="#7a1f15" strokeWidth="2.2" strokeLinecap="round" />;
   if (expr === "neutral")
     return <path d="M92 81 L108 81" fill="none" stroke="#7a1f15" strokeWidth="2" strokeLinecap="round" />;
-  return <path d="M92 79 Q100 84 108 79" fill="none" stroke="#c0392b" strokeWidth="2" strokeLinecap="round" />;
+  // smile — curved smile with a thin strip of white teeth
+  return (
+    <g>
+      <path d="M90 84 Q100 91 110 84" fill="none" stroke={darken(skin, 0.3)} strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M91 84.5 Q100 89 109 84.5 L108 87 Q100 91.5 92 87 Z" fill="#fff" />
+      <path d="M91 84.5 Q100 89 109 84.5" fill="none" stroke={darken(skin, 0.25)} strokeWidth="1.6" strokeLinecap="round" />
+    </g>
+  );
 }
 
 function Outfit({ config, shade, light, fillFor, uid }: { config: AvatarConfig; shade: string; light: string; fillFor: (s: string) => string; uid: string }) {
@@ -582,7 +601,17 @@ function renderHair(c: AvatarConfig, hairShade: string): React.ReactNode {
   const h = c.hairColor;
   if (c.hairStyle === "bald") return null;
   const styles: Record<string, React.ReactNode> = {
-    short: <path d="M70 62 Q70 38 100 34 Q130 38 130 62 L130 56 Q118 46 100 44 Q82 46 70 56 Z" fill={h} />,
+    short: (
+      <g>
+        <path d="M70 62 Q70 36 100 32 Q130 36 130 62 L130 52 Q120 40 100 38 Q80 40 70 52 Z" fill={h} />
+        {/* swept fringe strands */}
+        <path d="M70 54 Q80 44 94 46" fill="none" stroke={hairShade} strokeWidth="2.5" strokeLinecap="round" opacity="0.6" />
+        <path d="M72 58 Q84 48 98 50" fill="none" stroke={hairShade} strokeWidth="2" strokeLinecap="round" opacity="0.5" />
+        <path d="M74 62 Q88 52 102 54" fill="none" stroke={hairShade} strokeWidth="1.8" strokeLinecap="round" opacity="0.4" />
+        {/* highlight */}
+        <path d="M78 46 Q90 40 104 42" fill="none" stroke={lighten(h, 0.35)} strokeWidth="2.5" strokeLinecap="round" opacity="0.55" />
+      </g>
+    ),
     buzz: <path d="M72 60 Q72 42 100 38 Q128 42 128 60 L128 54 Q116 48 100 46 Q84 48 72 54 Z" fill={h} opacity="0.7" />,
     spiky: <path d="M70 62 L75 42 L82 54 L88 38 L95 52 L100 34 L105 52 L112 38 L118 54 L125 42 L130 62 Q118 48 100 46 Q82 48 70 62 Z" fill={h} />,
     mohawk: <g fill={h}><path d="M96 38 Q100 20 104 38 L104 52 L96 52 Z" /><path d="M88 54 Q100 50 112 54 L112 58 L88 58 Z" opacity="0.6" /></g>,
@@ -623,9 +652,9 @@ function renderAccessory(c: AvatarConfig, hairShade: string): React.ReactNode {
     case "crown":
       return <g><path d="M80 40 L80 30 L88 38 L100 24 L112 38 L120 30 L120 40 Z" fill="#f5c842" stroke="#d4a017" strokeWidth="1" /><circle cx="100" cy="28" r="2.5" fill="#ff6b6b" /><circle cx="86" cy="36" r="2" fill="#22d3ee" /><circle cx="114" cy="36" r="2" fill="#34d399" /></g>;
     case "glasses":
-      return <g fill="none" stroke="#1a1a1a" strokeWidth="2.5"><circle cx="89" cy="64" r="8" /><circle cx="111" cy="64" r="8" /><line x1="97" y1="64" x2="103" y2="64" /></g>;
+      return <g fill="none" stroke="#1a1a1a" strokeWidth="2.5"><circle cx="89" cy="67" r="9" /><circle cx="111" cy="67" r="9" /><line x1="98" y1="67" x2="102" y2="67" /></g>;
     case "sunglasses":
-      return <g><rect x="80" y="59" width="18" height="11" rx="4" fill="#1a1a1a" /><rect x="102" y="59" width="18" height="11" rx="4" fill="#1a1a1a" /><line x1="98" y1="63" x2="102" y2="63" stroke="#1a1a1a" strokeWidth="2" /><ellipse cx="85" cy="62" rx="4" ry="2" fill="#4a4a4a" opacity="0.6" /></g>;
+      return <g><rect x="79" y="61" width="20" height="12" rx="4" fill="#1a1a1a" /><rect x="101" y="61" width="20" height="12" rx="4" fill="#1a1a1a" /><line x1="99" y1="66" x2="101" y2="66" stroke="#1a1a1a" strokeWidth="2" /><ellipse cx="85" cy="64" rx="4" ry="2" fill="#4a4a4a" opacity="0.6" /></g>;
     case "headband":
       return <rect x="70" y="48" width="60" height="6" rx="3" fill="#f87171" />;
     case "headphones":
@@ -637,7 +666,7 @@ function renderAccessory(c: AvatarConfig, hairShade: string): React.ReactNode {
     case "scarf":
       return <g><path d="M76 108 Q100 116 124 108 L124 118 Q100 126 76 118 Z" fill="#0ea5e9" /><path d="M118 116 L124 138 L112 134 Z" fill="#0284c7" /></g>;
     case "eyepatch":
-      return <g><ellipse cx="89" cy="64" rx="9" ry="8" fill="#1a1a1a" /><path d="M80 58 L100 50" stroke="#1a1a1a" strokeWidth="1.5" /></g>;
+      return <g><ellipse cx="89" cy="67" rx="9" ry="9" fill="#1a1a1a" /><path d="M80 60 L100 52" stroke="#1a1a1a" strokeWidth="1.5" /></g>;
     case "halo":
       return <ellipse cx="100" cy="32" rx="20" ry="6" fill="none" stroke="#fde68a" strokeWidth="3" />;
     case "antennae":

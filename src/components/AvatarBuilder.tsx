@@ -16,6 +16,12 @@ import AvatarSvg, {
   FACIAL_HAIR,
   BACKGROUNDS,
   type AvatarConfig,
+  type Expression,
+  type FacialHair,
+  type OutfitType,
+  type Pose,
+  type Accessory,
+  type Background,
 } from "./AvatarSvg";
 import { Check, Shuffle, RotateCcw } from "lucide-react";
 
@@ -81,6 +87,17 @@ export default function AvatarBuilder({ initialConfig, onSave, saving }: Props) 
   const femaleHair = ["long", "ponytail", "braid", "bun", "wavy"];
   const maleHair = ["buzz", "spiky"];
 
+  const setBodyType = (id: string) => {
+    const bt = id as "male" | "female";
+    update({
+      bodyType: bt,
+      hairStyle: bt === "female" && maleHair.includes(config.hairStyle) ? "long"
+               : bt === "male" && femaleHair.includes(config.hairStyle) ? "short"
+               : config.hairStyle,
+      facialHair: bt === "female" && config.facialHair === "beard" ? "none" : config.facialHair,
+    });
+  };
+
   return (
     <div>
       {/* Preview */}
@@ -139,18 +156,19 @@ export default function AvatarBuilder({ initialConfig, onSave, saving }: Props) 
         {tab === "body" && (
           <>
             <Section title="Body type">
-              <OptionRow>
-                <ChoiceButton
-                  label="Male"
-                  selected={config.bodyType === "male"}
-                  onClick={() => update({ bodyType: "male", hairStyle: femaleHair.includes(config.hairStyle) ? "short" : config.hairStyle, facialHair: config.facialHair })}
-                />
-                <ChoiceButton
-                  label="Female"
-                  selected={config.bodyType === "female"}
-                  onClick={() => update({ bodyType: "female", hairStyle: maleHair.includes(config.hairStyle) ? "long" : config.hairStyle, facialHair: config.facialHair === "beard" ? "none" : config.facialHair })}
-                />
-              </OptionRow>
+              <AvatarOptionPicker
+                options={[{ id: "male", label: "Male" }, { id: "female", label: "Female" }]}
+                config={config}
+                getValue={(id) => ({
+                  bodyType: id as "male" | "female",
+                  hairStyle: id === "female" && maleHair.includes(config.hairStyle) ? "long"
+                           : id === "male" && femaleHair.includes(config.hairStyle) ? "short"
+                           : config.hairStyle,
+                  facialHair: id === "female" && config.facialHair === "beard" ? "none" : config.facialHair,
+                })}
+                selected={config.bodyType}
+                onSelect={setBodyType}
+              />
             </Section>
             <Section title="Skin tone">
               <ColorRow>
@@ -172,11 +190,13 @@ export default function AvatarBuilder({ initialConfig, onSave, saving }: Props) 
         {tab === "hair" && (
           <>
             <Section title="Hair style">
-              <OptionRow>
-                {availableHair.map((h) => (
-                  <ChoiceButton key={h.id} label={h.label} selected={config.hairStyle === h.id} onClick={() => update({ hairStyle: h.id })} />
-                ))}
-              </OptionRow>
+              <AvatarOptionPicker
+                options={availableHair}
+                config={config}
+                patchKey="hairStyle"
+                selected={config.hairStyle}
+                onSelect={(id) => update({ hairStyle: id })}
+              />
             </Section>
             <Section title="Hair color">
               <ColorRow>
@@ -191,18 +211,22 @@ export default function AvatarBuilder({ initialConfig, onSave, saving }: Props) 
         {tab === "face" && (
           <>
             <Section title="Expression">
-              <OptionRow>
-                {EXPRESSIONS.map((e) => (
-                  <ChoiceButton key={e.id} label={`${e.emoji} ${e.label}`} selected={config.expression === e.id} onClick={() => update({ expression: e.id })} />
-                ))}
-              </OptionRow>
+              <AvatarOptionPicker
+                options={EXPRESSIONS.map((e) => ({ id: e.id, label: e.label }))}
+                config={config}
+                patchKey="expression"
+                selected={config.expression}
+                onSelect={(id) => update({ expression: id as Expression })}
+              />
             </Section>
             <Section title="Facial hair">
-              <OptionRow>
-                {FACIAL_HAIR.map((f) => (
-                  <ChoiceButton key={f.id} label={f.id === "none" ? f.label : `${f.emoji} ${f.label}`} selected={config.facialHair === f.id} onClick={() => update({ facialHair: f.id })} />
-                ))}
-              </OptionRow>
+              <AvatarOptionPicker
+                options={FACIAL_HAIR.map((f) => ({ id: f.id, label: f.label }))}
+                config={config}
+                patchKey="facialHair"
+                selected={config.facialHair}
+                onSelect={(id) => update({ facialHair: id as FacialHair })}
+              />
             </Section>
           </>
         )}
@@ -210,11 +234,13 @@ export default function AvatarBuilder({ initialConfig, onSave, saving }: Props) 
         {tab === "costume" && (
           <>
             <Section title="Outfit">
-              <OptionRow>
-                {OUTFITS.map((o) => (
-                  <ChoiceButton key={o.id} label={`${o.emoji} ${o.label}`} selected={config.outfit === o.id} onClick={() => update({ outfit: o.id })} />
-                ))}
-              </OptionRow>
+              <AvatarOptionPicker
+                options={OUTFITS.map((o) => ({ id: o.id, label: o.label }))}
+                config={config}
+                patchKey="outfit"
+                selected={config.outfit}
+                onSelect={(id) => update({ outfit: id as OutfitType })}
+              />
             </Section>
             <Section title="Colour">
               <ColorRow>
@@ -224,42 +250,50 @@ export default function AvatarBuilder({ initialConfig, onSave, saving }: Props) 
               </ColorRow>
             </Section>
             <Section title="Pattern">
-              <OptionRow>
-                {COSTUME_PATTERNS.map((p) => (
-                  <ChoiceButton key={p.id} label={p.label} selected={config.costumePattern === p.id} onClick={() => update({ costumePattern: p.id })} />
-                ))}
-              </OptionRow>
+              <AvatarOptionPicker
+                options={COSTUME_PATTERNS}
+                config={config}
+                patchKey="costumePattern"
+                selected={config.costumePattern}
+                onSelect={(id) => update({ costumePattern: id })}
+              />
             </Section>
           </>
         )}
 
         {tab === "pose" && (
           <Section title="Choose a pose">
-            <OptionRow>
-              {POSES.map((p) => (
-                <ChoiceButton key={p.id} label={`${p.emoji} ${p.label}`} selected={config.pose === p.id} onClick={() => update({ pose: p.id })} />
-              ))}
-            </OptionRow>
+            <AvatarOptionPicker
+              options={POSES.map((p) => ({ id: p.id, label: p.label }))}
+              config={config}
+              patchKey="pose"
+              selected={config.pose}
+              onSelect={(id) => update({ pose: id as Pose })}
+            />
           </Section>
         )}
 
         {tab === "extras" && (
           <Section title="Accessories">
-            <OptionRow>
-              {ACCESSORIES.map((a) => (
-                <ChoiceButton key={a.id} label={a.id === "none" ? a.label : `${a.emoji} ${a.label}`} selected={config.accessory === a.id} onClick={() => update({ accessory: a.id })} />
-              ))}
-            </OptionRow>
+            <AvatarOptionPicker
+              options={ACCESSORIES.map((a) => ({ id: a.id, label: a.label }))}
+              config={config}
+              patchKey="accessory"
+              selected={config.accessory}
+              onSelect={(id) => update({ accessory: id as Accessory })}
+            />
           </Section>
         )}
 
         {tab === "scene" && (
           <Section title="Background">
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
-              {BACKGROUNDS.map((b) => (
-                <BackgroundTile key={b.id} bg={b.id} label={b.label} selected={config.background === b.id} onClick={() => update({ background: b.id })} />
-              ))}
-            </div>
+            <AvatarOptionPicker
+              options={BACKGROUNDS}
+              config={config}
+              patchKey="background"
+              selected={config.background}
+              onSelect={(id) => update({ background: id as Background })}
+            />
           </Section>
         )}
       </div>
@@ -296,39 +330,67 @@ export default function AvatarBuilder({ initialConfig, onSave, saving }: Props) 
   );
 }
 
+function AvatarOptionPicker({
+  options,
+  config,
+  getValue,
+  selected,
+  onSelect,
+  patchKey,
+}: {
+  options: { id: string; label: string }[];
+  config: AvatarConfig;
+  getValue?: (id: string) => Partial<AvatarConfig>;
+  selected: string;
+  onSelect: (id: string) => void;
+  patchKey?: keyof AvatarConfig;
+}) {
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(90px, 1fr))", gap: 10 }}>
+      {options.map((opt) => {
+        const patch: Partial<AvatarConfig> = getValue
+          ? getValue(opt.id)
+          : patchKey
+            ? ({ [patchKey]: opt.id } as Partial<AvatarConfig>)
+            : {};
+        const previewConfig: AvatarConfig = { ...config, ...patch };
+        const isSelected = selected === opt.id;
+        return (
+          <button
+            key={opt.id}
+            onClick={() => onSelect(opt.id)}
+            style={{
+              borderRadius: 12,
+              border: isSelected ? "2.5px solid var(--primary-light)" : "2px solid var(--border)",
+              background: isSelected ? "rgba(168,85,247,0.1)" : "var(--bg-soft)",
+              cursor: "pointer",
+              padding: 4,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 4,
+              transition: "all 0.18s",
+              transform: isSelected ? "scale(1.04)" : "scale(1)",
+              boxShadow: isSelected ? "0 0 12px rgba(168,85,247,0.3)" : "none",
+            }}
+          >
+            <AvatarSvg config={previewConfig} size={80} />
+            <span style={{ fontSize: 11, fontWeight: 600, color: isSelected ? "var(--primary-light)" : "var(--text-muted)", paddingBottom: 2 }}>
+              {opt.label}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div style={{ marginBottom: 20 }}>
       <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text-muted)", marginBottom: 10, textTransform: "uppercase", letterSpacing: 0.5 }}>{title}</div>
       {children}
     </div>
-  );
-}
-
-function OptionRow({ children }: { children: React.ReactNode }) {
-  return <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>{children}</div>;
-}
-
-function ChoiceButton({ label, selected, onClick }: { label: string; selected: boolean; onClick: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      style={{
-        padding: "10px 16px",
-        borderRadius: 10,
-        border: `1px solid ${selected ? "var(--primary)" : "var(--border)"}`,
-        background: selected ? "rgba(168,85,247,0.12)" : "var(--bg-soft)",
-        color: selected ? "var(--primary-light)" : "var(--text)",
-        fontWeight: 600,
-        fontSize: 13,
-        cursor: "pointer",
-        transition: "all 0.18s",
-        transform: selected ? "scale(1.03)" : "scale(1)",
-      }}
-    >
-      {selected && <Check size={13} style={{ display: "inline", marginRight: 4, verticalAlign: -1 }} />}
-      {label}
-    </button>
   );
 }
 
@@ -353,42 +415,6 @@ function Swatch({ color, selected, onClick }: { color: string; selected: boolean
       }}
       aria-label={`Color ${color}`}
     />
-  );
-}
-
-const BG_COLORS: Record<string, [string, string]> = {
-  glow: ["#a855f7", "#241338"],
-  sky: ["#38bdf8", "#0c4a6e"],
-  sunset: ["#fb923c", "#7c2d12"],
-  space: ["#3b0764", "#020617"],
-  mint: ["#6ee7b7", "#065f46"],
-  bubblegum: ["#f9a8d4", "#831843"],
-  forest: ["#86efac", "#14532d"],
-  none: ["#241338", "#1a0b2e"],
-};
-
-function BackgroundTile({ bg, label, selected, onClick }: { bg: string; label: string; selected: boolean; onClick: () => void }) {
-  const [c1, c2] = BG_COLORS[bg] ?? ["#241338", "#1a0b2e"];
-  return (
-    <button
-      onClick={onClick}
-      style={{
-        borderRadius: 12,
-        border: selected ? "2px solid var(--primary-light)" : "2px solid transparent",
-        background: `linear-gradient(135deg, ${c1}, ${c2})`,
-        cursor: "pointer",
-        transition: "all 0.18s",
-        transform: selected ? "scale(1.05)" : "scale(1)",
-        padding: "16px 4px 8px",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: 4,
-      }}
-    >
-      {selected && <Check size={12} style={{ color: "#fff" }} />}
-      <span style={{ fontSize: 11, fontWeight: 700, color: "#fff", textShadow: "0 1px 2px rgba(0,0,0,0.5)" }}>{label}</span>
-    </button>
   );
 }
 
