@@ -27,49 +27,33 @@ const Contact = lazy(() => import("./pages/Contact"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 
 function PageLoader() {
+  return <div className="app-bg" style={{ minHeight: "40vh" }} />;
+}
+
+function RouteSpinner() {
   return (
-    <div className="app-bg" style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
+    <div className="app-bg" style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "50vh" }}>
       <div className="spinner" />
     </div>
   );
 }
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user, profile, loading } = useAuth();
-  if (loading) {
-    return (
-      <div className="app-bg" style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
-        <div className="spinner" />
-      </div>
-    );
-  }
+  const { user, loading } = useAuth();
+  if (loading) return <RouteSpinner />;
   if (!user) return <Navigate to="/auth" replace />;
   return <>{children}</>;
 }
 
 function StudentRoute({ children }: { children: React.ReactNode }) {
-  const { profile, isAdmin, loading } = useAuth();
-  if (loading) {
-    return (
-      <div className="app-bg" style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
-        <div className="spinner" />
-      </div>
-    );
-  }
+  const { profile, isAdmin } = useAuth();
   if (isAdmin) return <>{children}</>;
   if (profile?.role === "teacher") return <Navigate to="/teacher" replace />;
   return <>{children}</>;
 }
 
 function TeacherRoute({ children }: { children: React.ReactNode }) {
-  const { profile, isAdmin, loading } = useAuth();
-  if (loading) {
-    return (
-      <div className="app-bg" style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
-        <div className="spinner" />
-      </div>
-    );
-  }
+  const { profile, isAdmin } = useAuth();
   if (isAdmin) return <>{children}</>;
   if (profile && profile.role !== "teacher" && profile.role !== "guardian") return <Navigate to="/dashboard" replace />;
   return <>{children}</>;
