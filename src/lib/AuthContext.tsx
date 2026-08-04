@@ -81,29 +81,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let mounted = true;
 
-    supabase.auth.getSession().then(({ data }) => {
-      if (!mounted) return;
-      setSession(data.session);
-      setUser(data.session?.user ?? null);
-      if (data.session?.user) {
-        Promise.all([
-          loadProfile(data.session.user.id),
-          loadUnlocks(data.session.user.id),
-        ]).finally(() => mounted && setLoading(false));
-      } else {
+    const timeout = setTimeout(() => {
+      if (mounted) setLoading(false);
+    }, 8000);
+
+    supabase.auth.getSession()
+      .then(({ data }) => {
+        if (!mounted) return;
+        clearTimeout(timeout);
+        setSession(data.session);
+        setUser(data.session?.user ?? null);
+        if (data.session?.user) {
+          Promise.all([
+            loadProfile(data.session.user.id),
+            loadUnlocks(data.session.user.id),
+          ]).catch(() => {}).finally(() => mounted && setLoading(false));
+        } else {
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        if (!mounted) return;
+        clearTimeout(timeout);
         setLoading(false);
-      }
-    });
+      });
 
     const { data: sub } = supabase.auth.onAuthStateChange((_event, newSession) => {
       setSession(newSession);
       setUser(newSession?.user ?? null);
       if (newSession?.user) {
         (async () => {
-          await Promise.all([
-            loadProfile(newSession.user.id),
-            loadUnlocks(newSession.user.id),
-          ]);
+          try {
+            await Promise.all([
+              loadProfile(newSession.user.id),
+              loadUnlocks(newSession.user.id),
+            ]);
+          } catch {
+            // Network/profile errors shouldn't trap the user on a spinner.
+          }
           setLoading(false);
         })();
       } else {

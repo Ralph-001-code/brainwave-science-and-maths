@@ -1,28 +1,38 @@
+import { lazy, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./lib/AuthContext";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import Landing from "./pages/Landing";
-import Auth from "./pages/Auth";
-import Dashboard from "./pages/Dashboard";
-import Years from "./pages/Years";
-import Settings from "./pages/Settings";
-import AvatarStudio from "./pages/AvatarStudio";
-import Programmes from "./pages/Programmes";
-import Checkpoint from "./pages/Checkpoint";
-import Igcse from "./pages/Igcse";
-import Quiz from "./pages/Quiz";
-import Pathway from "./pages/Pathway";
-import Certificates from "./pages/Certificates";
-import DailyQuiz from "./pages/DailyQuiz";
-import Practice from "./pages/Practice";
-import PastPapers from "./pages/PastPapers";
-import TeacherDashboard from "./pages/TeacherDashboard";
-import Leaderboard from "./pages/Leaderboard";
-import Friends from "./pages/Friends";
-import Contact from "./pages/Contact";
-import Privacy from "./pages/Privacy";
 import { useSeo } from "./lib/useSeo";
+
+const Landing = lazy(() => import("./pages/Landing"));
+const Auth = lazy(() => import("./pages/Auth"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Years = lazy(() => import("./pages/Years"));
+const Settings = lazy(() => import("./pages/Settings"));
+const AvatarStudio = lazy(() => import("./pages/AvatarStudio"));
+const Programmes = lazy(() => import("./pages/Programmes"));
+const Checkpoint = lazy(() => import("./pages/Checkpoint"));
+const Igcse = lazy(() => import("./pages/Igcse"));
+const Quiz = lazy(() => import("./pages/Quiz"));
+const Pathway = lazy(() => import("./pages/Pathway"));
+const Certificates = lazy(() => import("./pages/Certificates"));
+const DailyQuiz = lazy(() => import("./pages/DailyQuiz"));
+const Practice = lazy(() => import("./pages/Practice"));
+const PastPapers = lazy(() => import("./pages/PastPapers"));
+const TeacherDashboard = lazy(() => import("./pages/TeacherDashboard"));
+const Leaderboard = lazy(() => import("./pages/Leaderboard"));
+const Friends = lazy(() => import("./pages/Friends"));
+const Contact = lazy(() => import("./pages/Contact"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+
+function PageLoader() {
+  return (
+    <div className="app-bg" style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
+      <div className="spinner" />
+    </div>
+  );
+}
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, profile, loading } = useAuth();
@@ -76,30 +86,30 @@ function AppRoutes() {
       <Navbar />
       <div style={{ flex: 1 }}>
         <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/privacy" element={<Privacy />} />
-          <Route path="/dashboard" element={<ProtectedRoute><StudentRoute><Dashboard /></StudentRoute></ProtectedRoute>} />
-          <Route path="/teacher" element={<ProtectedRoute><TeacherRoute><TeacherDashboard /></TeacherRoute></ProtectedRoute>} />
-          <Route path="/years" element={<ProtectedRoute><StudentRoute><Years /></StudentRoute></ProtectedRoute>} />
-          <Route path="/programmes" element={<ProtectedRoute><StudentRoute><Programmes /></StudentRoute></ProtectedRoute>} />
-          <Route path="/primary" element={<ProtectedRoute><StudentRoute><Years /></StudentRoute></ProtectedRoute>} />
-          <Route path="/checkpoint" element={<ProtectedRoute><StudentRoute><Checkpoint /></StudentRoute></ProtectedRoute>} />
-          <Route path="/igcse" element={<ProtectedRoute><StudentRoute><Igcse /></StudentRoute></ProtectedRoute>} />
-          <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-          <Route path="/avatar" element={<ProtectedRoute><AvatarStudio /></ProtectedRoute>} />
-          <Route path="/leaderboard" element={<ProtectedRoute><StudentRoute><Leaderboard /></StudentRoute></ProtectedRoute>} />
-          <Route path="/friends" element={<ProtectedRoute><StudentRoute><Friends /></StudentRoute></ProtectedRoute>} />
-          <Route path="/pathway" element={<ProtectedRoute><StudentRoute><Pathway /></StudentRoute></ProtectedRoute>} />
-          <Route path="/certificates" element={<ProtectedRoute><StudentRoute><Certificates /></StudentRoute></ProtectedRoute>} />
-          <Route path="/past-papers" element={<ProtectedRoute><StudentRoute><PastPapers /></StudentRoute></ProtectedRoute>} />
+          <Route path="/" element={<Suspense fallback={<PageLoader />}><Landing /></Suspense>} />
+          <Route path="/auth" element={<Suspense fallback={<PageLoader />}><Auth /></Suspense>} />
+          <Route path="/contact" element={<Suspense fallback={<PageLoader />}><Contact /></Suspense>} />
+          <Route path="/privacy" element={<Suspense fallback={<PageLoader />}><Privacy /></Suspense>} />
+          <Route path="/dashboard" element={<ProtectedRoute><StudentRoute><Suspense fallback={<PageLoader />}><Dashboard /></Suspense></StudentRoute></ProtectedRoute>} />
+          <Route path="/teacher" element={<ProtectedRoute><TeacherRoute><Suspense fallback={<PageLoader />}><TeacherDashboard /></Suspense></TeacherRoute></ProtectedRoute>} />
+          <Route path="/years" element={<ProtectedRoute><StudentRoute><Suspense fallback={<PageLoader />}><Years /></Suspense></StudentRoute></ProtectedRoute>} />
+          <Route path="/programmes" element={<ProtectedRoute><StudentRoute><Suspense fallback={<PageLoader />}><Programmes /></Suspense></StudentRoute></ProtectedRoute>} />
+          <Route path="/primary" element={<ProtectedRoute><StudentRoute><Suspense fallback={<PageLoader />}><Years /></Suspense></StudentRoute></ProtectedRoute>} />
+          <Route path="/checkpoint" element={<ProtectedRoute><StudentRoute><Suspense fallback={<PageLoader />}><Checkpoint /></Suspense></StudentRoute></ProtectedRoute>} />
+          <Route path="/igcse" element={<ProtectedRoute><StudentRoute><Suspense fallback={<PageLoader />}><Igcse /></Suspense></StudentRoute></ProtectedRoute>} />
+          <Route path="/settings" element={<ProtectedRoute><Suspense fallback={<PageLoader />}><Settings /></Suspense></ProtectedRoute>} />
+          <Route path="/avatar" element={<ProtectedRoute><Suspense fallback={<PageLoader />}><AvatarStudio /></Suspense></ProtectedRoute>} />
+          <Route path="/leaderboard" element={<ProtectedRoute><StudentRoute><Suspense fallback={<PageLoader />}><Leaderboard /></Suspense></StudentRoute></ProtectedRoute>} />
+          <Route path="/friends" element={<ProtectedRoute><StudentRoute><Suspense fallback={<PageLoader />}><Friends /></Suspense></StudentRoute></ProtectedRoute>} />
+          <Route path="/pathway" element={<ProtectedRoute><StudentRoute><Suspense fallback={<PageLoader />}><Pathway /></Suspense></StudentRoute></ProtectedRoute>} />
+          <Route path="/certificates" element={<ProtectedRoute><StudentRoute><Suspense fallback={<PageLoader />}><Certificates /></Suspense></StudentRoute></ProtectedRoute>} />
+          <Route path="/past-papers" element={<ProtectedRoute><StudentRoute><Suspense fallback={<PageLoader />}><PastPapers /></Suspense></StudentRoute></ProtectedRoute>} />
           {/* Quiz routes — programme-aware */}
-          <Route path="/quiz/:yearId/:topicId" element={<ProtectedRoute><StudentRoute><Quiz /></StudentRoute></ProtectedRoute>} />
-          <Route path="/quiz/checkpoint/:stage/:subject/:topicId" element={<ProtectedRoute><StudentRoute><Quiz /></StudentRoute></ProtectedRoute>} />
-          <Route path="/quiz/igcse/:igcseSubject/:topicId" element={<ProtectedRoute><StudentRoute><Quiz /></StudentRoute></ProtectedRoute>} />
-          <Route path="/daily" element={<ProtectedRoute><StudentRoute><DailyQuiz /></StudentRoute></ProtectedRoute>} />
-          <Route path="/practice" element={<ProtectedRoute><StudentRoute><Practice /></StudentRoute></ProtectedRoute>} />
+          <Route path="/quiz/:yearId/:topicId" element={<ProtectedRoute><StudentRoute><Suspense fallback={<PageLoader />}><Quiz /></Suspense></StudentRoute></ProtectedRoute>} />
+          <Route path="/quiz/checkpoint/:stage/:subject/:topicId" element={<ProtectedRoute><StudentRoute><Suspense fallback={<PageLoader />}><Quiz /></Suspense></StudentRoute></ProtectedRoute>} />
+          <Route path="/quiz/igcse/:igcseSubject/:topicId" element={<ProtectedRoute><StudentRoute><Suspense fallback={<PageLoader />}><Quiz /></Suspense></StudentRoute></ProtectedRoute>} />
+          <Route path="/daily" element={<ProtectedRoute><StudentRoute><Suspense fallback={<PageLoader />}><DailyQuiz /></Suspense></StudentRoute></ProtectedRoute>} />
+          <Route path="/practice" element={<ProtectedRoute><StudentRoute><Suspense fallback={<PageLoader />}><Practice /></Suspense></StudentRoute></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
