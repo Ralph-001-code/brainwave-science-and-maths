@@ -27,7 +27,7 @@ export default function Landing() {
             Science &amp; Maths for every year. <span className="gradient-text">Made simple.</span>
           </h1>
           <p className="fade-up text-muted" style={{ fontSize: 20, maxWidth: 640, marginTop: 20 }}>
-            Pick your year group, learn at your own pace, take daily quizzes and earn XP. From counting in Year 1 to Cambridge-style problem solving in Year 6 — built for students by Brainwave Science & Maths.
+            Pick your year group, learn at your own pace, take daily quizzes and earn XP. From counting in Year 1 to Cambridge-style problem solving at IGCSE — built for students by Brainwave Science & Maths.
           </p>
           <div className="fade-up" style={{ display: "flex", gap: 14, marginTop: 32, flexWrap: "wrap", justifyContent: "center" }}>
             <Link to={user ? "/dashboard" : "/auth?mode=signup"} className="btn btn-primary btn-lg">
