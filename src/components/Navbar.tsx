@@ -115,32 +115,13 @@ export default function Navbar() {
 
         {user ? (
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ display: "flex", gap: 4 }} className="nav-links-desktop">
-              {links.map((l) => {
-                const active = location.pathname.startsWith(l.to);
-                const Icon = l.icon;
-                return (
-                  <Link
-                    key={l.to}
-                    to={l.to}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 7,
-                      padding: "8px 14px",
-                      borderRadius: 10,
-                      fontSize: 14,
-                      fontWeight: 600,
-                      color: active ? "var(--primary-light)" : "var(--text-muted)",
-                      background: active ? "rgba(168,85,247,0.12)" : "transparent",
-                      transition: "all 0.2s",
-                    }}
-                  >
-                    <Icon size={16} />
-                    {l.label}
-                  </Link>
-                );
-              })}
+            <div className="nav-current-page">
+              {(() => {
+                const current = links.find((l) => location.pathname.startsWith(l.to));
+                if (!current) return null;
+                const Icon = current.icon;
+                return <><Icon size={16} />{current.label}</>;
+              })()}
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginLeft: 6 }}>
               {isAdmin ? (
@@ -171,7 +152,7 @@ export default function Navbar() {
                 <div style={{ position: "relative", width: 38, height: 38, borderRadius: "50%", overflow: "hidden", border: "2px solid var(--primary)", background: "var(--bg-soft)", flexShrink: 0 }}>
                   <AvatarSvg config={profile?.avatar_config ? parseAvatarConfig(profile.avatar_config) : DEFAULT_AVATAR} size={38} />
                 </div>
-                <span className="nav-links-desktop" style={{ fontWeight: 600, fontSize: 14, color: "var(--text)" }}>
+                <span style={{ fontWeight: 600, fontSize: 14, color: "var(--text)" }}>
                   {profile ? displayName(profile) : ""}
                 </span>
               </Link>
@@ -190,7 +171,7 @@ export default function Navbar() {
                 }}
               >
                 <LogOut size={16} />
-                <span className="nav-links-desktop">Sign out</span>
+                <span>Sign out</span>
               </button>
             </div>
             <button className="nav-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label="Menu" aria-expanded={menuOpen}>

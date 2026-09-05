@@ -260,9 +260,9 @@ input, select { font-family: inherit; }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ===== Mobile nav ===== */
+/* ===== Nav toggle (all screen sizes) ===== */
 .nav-toggle {
-  display: none;
+  display: flex;
   width: 40px;
   height: 40px;
   border-radius: 10px;
@@ -286,6 +286,19 @@ input, select { font-family: inherit; }
   padding: 20px 24px;
   overflow-y: auto;
   animation: fadeInUp 0.25s ease both;
+}
+
+.nav-current-page {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--primary-light);
+  background: rgba(168,85,247,0.12);
+  white-space: nowrap;
 }
 .mobile-menu-link {
   display: flex;
@@ -311,8 +324,6 @@ input, select { font-family: inherit; }
 
 /* ===== Responsive breakpoints ===== */
 @media (max-width: 720px) {
-  .nav-links-desktop { display: none !important; }
-  .nav-toggle { display: flex; }
   .container { padding: 0 16px; }
   .section { padding: 48px 0; }
   .card { padding: 18px; }
