@@ -90,9 +90,9 @@ export default function Navbar() {
       style={{
         position: "sticky",
         top: 0,
-        zIndex: 50,
+        zIndex: 9999,
         backdropFilter: "blur(12px)",
-        background: onLanding ? "rgba(26,11,46,0.6)" : "rgba(26,11,46,0.85)",
+        background: "rgba(26,11,46,0.95)",
         borderBottom: "1px solid var(--border)",
       }}
     >

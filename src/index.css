@@ -282,7 +282,7 @@ input, select { font-family: inherit; }
   bottom: 0;
   background: rgba(26, 11, 46, 0.98);
   backdrop-filter: blur(16px);
-  z-index: 49;
+  z-index: 9998;
   padding: 20px 24px;
   overflow-y: auto;
   animation: fadeInUp 0.25s ease both;
