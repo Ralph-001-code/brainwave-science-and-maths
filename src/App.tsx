@@ -68,7 +68,7 @@ function AppRoutes() {
   return (
     <div className="app-bg" style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Navbar />
-      <div style={{ flex: 1 }}>
+      <div style={{ flex: 1, paddingTop: 68 }}>
         <Routes>
           <Route path="/" element={<Suspense fallback={<PageLoader />}><Landing /></Suspense>} />
           <Route path="/auth" element={<Suspense fallback={<PageLoader />}><Auth /></Suspense>} />

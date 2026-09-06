@@ -18,7 +18,7 @@ export default function Landing() {
   return (
     <>
       {/* HERO */}
-      <section className="section" style={{ paddingTop: 60 }}>
+      <section className="section" style={{ paddingTop: 20 }}>
         <div className="container" style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
           <div className="badge fade-up" style={{ marginBottom: 24, background: "rgba(245,200,66,0.14)", color: "var(--gold)" }}>
             <Sparkles size={14} /> Learn maths the Brainwave way
